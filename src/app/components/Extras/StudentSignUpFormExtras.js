@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import styles from './StudentSignUpFormExtras.module.css';
-import auth from '@/app/api/auth.api';
+import auth from '../../api/auth.api';
 
 export default function StudentSignUpFormExtras() {
   const [status, setStatus] = useState('');
