@@ -15,35 +15,46 @@ export default function Admin() {
     loadSubmissions(search);
   }, [search]);
 
-  const loadSubmissions = (query = '') => {
-    const saved = JSON.parse(localStorage.getItem('submissions')) || [];
+  const loadSubmissions = async (query = '') => {
+    try {
+      const res = await fetch('http://localhost:5000/users'); // ✅ Fetch users from backend
+      const data = await res.json();
 
-    const filtered = saved
-      .map((s, i) => {
-        const combined = `${s['student-id']} ${s['student-name']} ${s['student-email']}`.toLowerCase();
-        const matchScore = combined.includes(query.toLowerCase()) ? 1 : 0;
-        return { s, i, matchScore };
-      })
-      .filter((x) => x.matchScore > 0 || query === '')
-      .sort((a, b) => b.matchScore - a.matchScore)
-      .reverse();
+      const filtered = data
+        .map((s, i) => {
+          const combined = `${s.name} ${s.email}`.toLowerCase();
+          const matchScore = combined.includes(query.toLowerCase()) ? 1 : 0;
+          return { s, i, matchScore };
+        })
+        .filter((x) => x.matchScore > 0 || query === '')
+        .sort((a, b) => b.matchScore - a.matchScore)
+        .reverse();
 
-    setSubmissions(filtered);
-  }; //This should be on backend, why is it on frontend
-
-  const updateStatus = (index, action) => {
-    const saved = JSON.parse(localStorage.getItem('submissions')) || [];
-
-    if (action === 'approve') {
-      saved[index].approved = true;
-      saved[index].revoked = false;
-    } else if (action === 'revoke') {
-      saved[index].approved = false;
-      saved[index].revoked = true;
+      setSubmissions(filtered);
+    } catch (err) {
+      console.error("Error loading submissions", err);
     }
+  };
 
-    localStorage.setItem('submissions', JSON.stringify(saved));
-    loadSubmissions(search);
+  const updateStatus = async (userId, action) => {
+    try {
+      if (action === 'approve') {
+        await fetch(`http://localhost:5000/users/${userId}/approve`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+        });
+      } else if (action === 'revoke') {
+        await fetch(`http://localhost:5000/users/${userId}/revoke`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
+
+      // reload list after update
+      loadSubmissions(search);
+    } catch (err) {
+      console.error("Error updating status", err);
+    }
   };
 
   return (
@@ -51,7 +62,7 @@ export default function Admin() {
       <h2 className={styles.heading}>Admin Dashboard</h2>
       <input
         type="text"
-        placeholder="Search by ID, Name, or Email..."
+        placeholder="Search by Name or Email..."
         className={styles.search}
         value={search}
         onChange={(e) => setSearch(e.target.value)}
@@ -60,11 +71,10 @@ export default function Admin() {
       {submissions.length === 0 ? (
         <p>No submissions yet.</p>
       ) : (
-        submissions.map(({ s, i }) => (
-          <div className={styles.submission} key={i}>
-            <p><strong>ID:</strong> {s['student-id']}</p>
-            <p><strong>Name:</strong> {s['student-name']}</p>
-            <p><strong>Email:</strong> {s['student-email']}</p>
+        submissions.map(({ s }) => (
+          <div className={styles.submission} key={s._id}>
+            <p><strong>Name:</strong> {s.name}</p>
+            <p><strong>Email:</strong> {s.email}</p>
             <p>
               <strong>Status: </strong>
               {s.revoked ? (
@@ -76,12 +86,12 @@ export default function Admin() {
               )}
             </p>
             {!s.revoked && !s.approved && (
-              <button onClick={() => updateStatus(i, 'approve')} className={styles.button}>
+              <button onClick={() => updateStatus(s._id, 'approve')} className={styles.button}>
                 Approve
               </button>
             )}
             {s.approved && (
-              <button onClick={() => updateStatus(i, 'revoke')} className={`${styles.button} ${styles.revoke}`}>
+              <button onClick={() => updateStatus(s._id, 'revoke')} className={`${styles.button} ${styles.revoke}`}>
                 Revoke
               </button>
             )}
