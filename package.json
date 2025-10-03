@@ -16,9 +16,10 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
-    "@types/node": "24.5.2",
-    "@types/react": "19.1.13",
+    "@types/node": "^24.5.2",
+    "@types/react": "^19.1.13",
     "eslint": "^9",
-    "eslint-config-next": "15.5.3"
+    "eslint-config-next": "15.5.3",
+    "typescript": "^5.9.3"
   }
 }
