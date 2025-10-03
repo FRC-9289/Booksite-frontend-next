@@ -10,6 +10,18 @@ const authOptions = {
     }),
   ],
   // optional callbacks, session, etc.
+  callbacks: {
+    async redirect({ url, baseUrl, user }) {
+      if (!user?.email) return baseUrl;
+
+      if (user.email.endsWith('@s.thevillageschool.com')) {
+        return `${baseUrl}/student`;
+      } else if (user.email.endsWith('@thevillageschool.com')) {
+        return `${baseUrl}/admin`;
+      }
+      return baseUrl;
+    },
+  },
 };
 
 // NextAuth handler
