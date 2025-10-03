@@ -10,6 +10,7 @@ const authOptions = {
     }),
   ],
   // optional callbacks, session, etc.
+
 };
 
 // NextAuth handler

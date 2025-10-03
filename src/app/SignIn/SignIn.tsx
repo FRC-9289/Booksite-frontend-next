@@ -10,14 +10,26 @@ export default function StudentLogin() {
   const router = useRouter();
 
   useEffect(() => {
-    if (session?.user) {
-      // Save user info to localStorage
-      localStorage.setItem('userEmail', session.user.email);
-      localStorage.setItem('userName', session.user.name);
-      // Redirect to Dashboard
-      router.push('/Dashboard');
+    if (status === 'authenticated' && session?.user) {
+      const email = session.user.email || '';
+      const name = session.user.name || '';
+
+      // Save to localStorage
+      localStorage.setItem('userEmail', email);
+      localStorage.setItem('userName', name);
+
+      // Redirect based on email domain
+      if (email.endsWith('@s.thevillageschool.com')) {
+        router.push('/Dashboard/Student');
+      } else if (email.endsWith('@thevillageschool.com')) {
+        router.push('/Dashboard/Teacher');
+      } else {
+        alert('Please sign in with your school email.');
+        // Optional: sign the user out automatically
+        // signOut();
+      }
     }
-  }, [session, router]);
+  }, [status, session, router]);
 
   const handleGoogleSignIn = () => {
     signIn('google');
