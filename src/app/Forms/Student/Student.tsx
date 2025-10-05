@@ -1,7 +1,8 @@
 'use client';
 
-import studentsend from '../../api/studentsend.api';
-import getstudent from '../../api/getstudent.api';
+import studentPOST from '../../api/studentPOST.api';
+import { studentGET } from '../../api/studentGET.api';
+import { roomGET, roomsGET } from '../../api/roomGET.api';
 import styles from './Student.module.css';
 import { useEffect, useState } from 'react';
 
@@ -20,13 +21,31 @@ export default function StudentSignUp() {
           return;
         }
 
-        const data = await getstudent(email);
-        setRooms(data.openRooms || []);
+        const data = await studentGET(email);
+        let roomList = (await roomsGET()) || [];
 
-        setUploaded(data.student && data.student.pdfs && data.student.pdfs.length === 3);
-        console.log('Uploaded:', data.student && data.student.pdfs && data.student.pdfs.length === 3);
+        if (!roomList.length) {
+          console.warn('No rooms received from backend, using fallback list.');
+          roomList = [
+            '1M1', '1M2', '1F1', '1F2',
+            '2M1', '2F1',
+            '3M1', '3F1'
+          ];
+        }
+
+        setRooms(roomList);
+
+        const hasPdfs = data.student?.pdfs?.length === 3;
+        setUploaded(hasPdfs);
+        console.log('Uploaded:', hasPdfs);
       } catch (err) {
         console.error('Failed to fetch room data:', err);
+
+        setRooms([
+          '1M1', '1M2', '1F1', '1F2',
+          '2M1', '2F1',
+          '3M1', '3F1'
+        ]);
       }
     }
 
@@ -36,11 +55,32 @@ export default function StudentSignUp() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    const email = localStorage.getItem('userEmail');
+    if (!email) {
+      setStatus('Missing email. Please log in again.');
+      return;
+    }
+
     const formData = new FormData(e.currentTarget);
-    formData.append('room_select', selectedRoom);
+
+    const pdfs: Blob[] = [];
+    for (let i = 1; i <= 3; i++) {
+      const file = formData.get(`file${i}`);
+      if (file instanceof Blob) pdfs.push(file);
+    }
+
+    const student = {
+      email,
+      room: selectedRoom ? Number(selectedRoom.replace(/\D/g, '')) : undefined,
+      pdfs,
+    };
+
+    formData.append('email', student.email);
+    if (student.room !== undefined) formData.append('room', String(student.room));
+    pdfs.forEach((pdf, index) => formData.append(`pdf_${index}`, pdf));
 
     try {
-      const response = await studentsend(formData);
+      const response = await studentPOST(formData);
       setStatus('Submission successful!');
       console.log('Success:', response);
       setUploaded(true);
@@ -50,7 +90,6 @@ export default function StudentSignUp() {
     }
   };
 
-  // Group rooms by bus and gender
   const groupedByBus: Record<string, { M: string[]; F: string[] }> = {};
   rooms.forEach((room) => {
     const match = room.match(/^(\d+)([MF])(\d+)$/);
@@ -64,97 +103,86 @@ export default function StudentSignUp() {
     <div className={styles.container}>
       <h2 className={styles.heading}>Village Robotics 9289 Sign Up</h2>
 
-      {uploaded ? (
-        <p className={styles.status}>You have already uploaded your PDFs.</p>
-      ) : (
-        <form onSubmit={handleSubmit} className={styles.form}>
-          {Object.entries(groupedByBus).map(([busNum, genders]) => (
-            <fieldset key={busNum} className={styles.busFieldset}>
-              <legend>Bus {busNum}</legend>
-
-              {genders.M.length > 0 && (
-                <fieldset className={styles.genderFieldset}>
-                  <legend>Male Rooms</legend>
-                  {genders.M.map((roomId) => (
-                    <div key={roomId} className={styles.radioGroup}>
-                      <input
-                        type="radio"
-                        id={roomId}
-                        name="room_select"
-                        value={roomId}
-                        checked={selectedRoom === roomId}
-                        onChange={(e) => setSelectedRoom(e.target.value)}
-                        required
-                      />
-                      <label htmlFor={roomId}>{roomId}</label>
-                    </div>
-                  ))}
-                </fieldset>
-              )}
-
-              {genders.F.length > 0 && (
-                <fieldset className={styles.genderFieldset}>
-                  <legend>Female Rooms</legend>
-                  {genders.F.map((roomId) => (
-                    <div key={roomId} className={styles.radioGroup}>
-                      <input
-                        type="radio"
-                        id={roomId}
-                        name="room_select"
-                        value={roomId}
-                        checked={selectedRoom === roomId}
-                        onChange={(e) => setSelectedRoom(e.target.value)}
-                        required
-                      />
-                      <label htmlFor={roomId}>{roomId}</label>
-                    </div>
-                  ))}
-                </fieldset>
-              )}
-            </fieldset>
-          ))}
-
-          <fieldset className={styles.fileUploadFieldset}>
-            <legend>Upload Required PDFs</legend>
-
-            <div className={styles.fileInputGroup}>
-              <label htmlFor="file1">PDF 1:</label>
-              <input
-                type="file"
-                id="file1"
-                name="file1"
-                accept="application/pdf"
-                required
-              />
-            </div>
-            <div className={styles.fileInputGroup}>
-              <label htmlFor="file2">PDF 2:</label>
-              <input
-                type="file"
-                id="file2"
-                name="file2"
-                accept="application/pdf"
-                required
-              />
-            </div>
-            <div className={styles.fileInputGroup}>
-              <label htmlFor="file3">PDF 3:</label>
-              <input
-                type="file"
-                id="file3"
-                name="file3"
-                accept="application/pdf"
-                required
-              />
-            </div>
-          </fieldset>
-
-          <button type="submit" className={styles.button}>
-            Sign Up
-          </button>
-          <p className={styles.status}>{status}</p>
-        </form>
+      {uploaded && (
+        <p className={styles.status}>
+          You have previously uploaded PDFs. You may upload again to replace them.
+        </p>
       )}
+
+      <form onSubmit={handleSubmit} className={styles.form}>
+        <div className={styles.formLayout}>
+          <div className={styles.busContainer}>
+            {Object.entries(groupedByBus).map(([busNum, genders]) => (
+              <fieldset key={busNum} className={styles.busFieldset}>
+                <legend>Bus {busNum}</legend>
+
+                <div className={styles.genderContainer}>
+                  {genders.M.length > 0 && (
+                    <fieldset className={styles.genderFieldset}>
+                      <legend>Male Rooms</legend>
+                      {genders.M.map((roomId) => (
+                        <label key={roomId} className={styles.radioOption}>
+                          <input
+                            type="radio"
+                            name="room_select"
+                            value={roomId}
+                            checked={selectedRoom === roomId}
+                            onChange={(e) => setSelectedRoom(e.target.value)}
+                            required
+                          />
+                          <span className={styles.radioLabel}>{roomId.replace(/[0-9]/, '').replace('M', 'Male ').replace('F', 'Female ')}</span>
+                        </label>
+                      ))}
+                    </fieldset>
+                  )}
+
+                  {genders.F.length > 0 && (
+                    <fieldset className={styles.genderFieldset}>
+                      <legend>Female Rooms</legend>
+                      {genders.F.map((roomId) => (
+                        <label key={roomId} className={styles.radioOption}>
+                          <input
+                            type="radio"
+                            name="room_select"
+                            value={roomId}
+                            checked={selectedRoom === roomId}
+                            onChange={(e) => setSelectedRoom(e.target.value)}
+                            required
+                          />
+                          <span className={styles.radioLabel}>{roomId.replace(/[0-9]/, '').replace('M', 'Male ').replace('F', 'Female ')}</span>
+                        </label>
+                      ))}
+                    </fieldset>
+                  )}
+                </div>
+              </fieldset>
+            ))}
+          </div>
+
+          <div className={styles.fileUploadContainer}>
+            <fieldset className={styles.fileUploadFieldset}>
+              <legend>Upload Required PDFs</legend>
+              {[1, 2, 3].map((i) => (
+                <div key={i} className={styles.fileInputGroup}>
+                  <label htmlFor={`file${i}`}>PDF {i}:</label>
+                  <input
+                    type="file"
+                    id={`file${i}`}
+                    name={`file${i}`}
+                    accept="application/pdf"
+                    required
+                  />
+                </div>
+              ))}
+            </fieldset>
+          </div>
+        </div>
+
+        <button type="submit" className={styles.button}>
+          Sign Up / Update
+        </button>
+        <p className={styles.status}>{status}</p>
+      </form>
     </div>
   );
 }
