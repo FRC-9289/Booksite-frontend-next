@@ -47,47 +47,53 @@ export default function Admin() {
   };
 
   return (
-    <div className={styles.container}>
-      <h2 className={styles.heading}>Admin Dashboard</h2>
-      <input
-        type="text"
-        placeholder="Search by ID, Name, or Email..."
-        className={styles.search}
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
-
-      {submissions.length === 0 ? (
-        <p>No submissions yet.</p>
+    <>
+      {localStorage.getItem('isAdmin') !== /*Make this true in production */ 'true' ? (
+        <div className={styles.container}>
+          <h2 className={styles.heading}>Admin Dashboard</h2>
+          <input
+            type="text"
+            placeholder="Search by ID, Name, or Email..."
+            className={styles.search}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+  
+          {submissions.length === 0 ? (
+            <p>No submissions yet.</p>
+          ) : (
+            submissions.map(({ s, i }) => (
+              <div className={styles.submission} key={i}>
+                <p><strong>ID:</strong> {s['student-id']}</p>
+                <p><strong>Name:</strong> {s['student-name']}</p>
+                <p><strong>Email:</strong> {s['student-email']}</p>
+                <p>
+                  <strong>Status: </strong>
+                  {s.revoked ? (
+                    <span className={styles.revoked}>❌ Revoked</span>
+                  ) : s.approved ? (
+                    <span className={styles.approved}>✅ Approved</span>
+                  ) : (
+                    <span className={styles.pending}>❌ Pending</span>
+                  )}
+                </p>
+                {!s.revoked && !s.approved && (
+                  <button onClick={() => updateStatus(i, 'approve')} className={styles.button}>
+                    Approve
+                  </button>
+                )}
+                {s.approved && (
+                  <button onClick={() => updateStatus(i, 'revoke')} className={`${styles.button} ${styles.revoke}`}>
+                    Revoke
+                  </button>
+                )}
+              </div>
+            ))
+          )}
+        </div>
       ) : (
-        submissions.map(({ s, i }) => (
-          <div className={styles.submission} key={i}>
-            <p><strong>ID:</strong> {s['student-id']}</p>
-            <p><strong>Name:</strong> {s['student-name']}</p>
-            <p><strong>Email:</strong> {s['student-email']}</p>
-            <p>
-              <strong>Status: </strong>
-              {s.revoked ? (
-                <span className={styles.revoked}>❌ Revoked</span>
-              ) : s.approved ? (
-                <span className={styles.approved}>✅ Approved</span>
-              ) : (
-                <span className={styles.pending}>❌ Pending</span>
-              )}
-            </p>
-            {!s.revoked && !s.approved && (
-              <button onClick={() => updateStatus(i, 'approve')} className={styles.button}>
-                Approve
-              </button>
-            )}
-            {s.approved && (
-              <button onClick={() => updateStatus(i, 'revoke')} className={`${styles.button} ${styles.revoke}`}>
-                Revoke
-              </button>
-            )}
-          </div>
-        ))
+        <p className={styles.accessDenied}>Access Denied. You are not an admin.</p>
       )}
-    </div>
+    </>
   );
-}
+}  
