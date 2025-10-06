@@ -21,10 +21,8 @@ export default function StudentLogin() {
       // Redirect based on email domain
       if (email.endsWith('@s.thevillageschool.com')) {
         router.push('/Forms/Student');
-        localStorage.setItem('isAdmin', 'false');
       } else if (email.endsWith('@thevillageschool.com')) {
         router.push('/Forms/Admin');
-        localStorage.setItem('isAdmin', 'true');
       } else {
         alert('Please sign in with your school email.');
       }
