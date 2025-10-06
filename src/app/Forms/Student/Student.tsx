@@ -35,7 +35,7 @@ export default function StudentSignUp() {
 
         setRooms(roomList);
 
-        const hasPdfs = data.student?.pdfs?.length === 3;
+        const hasPdfs = data.pdfs?.length === 3;
         setUploaded(hasPdfs);
         console.log('Uploaded:', hasPdfs);
       } catch (err) {
@@ -66,7 +66,9 @@ export default function StudentSignUp() {
     const pdfs: Blob[] = [];
     for (let i = 1; i <= 3; i++) {
       const file = formData.get(`file${i}`);
-      if (file instanceof Blob) pdfs.push(file);
+      if (file instanceof Blob) {
+        pdfs.push(file);
+      }
     }
 
     const student = {
