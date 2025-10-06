@@ -1,15 +1,5 @@
-type StudentInfo = {
-  email: string;
-  room?: string; //Ex: "1F1", "2M1"
-  pdfs?: Blob[];
-};
-
-type StudentResponse = {
-  student: StudentInfo;
-};
-
-export async function studentGET(name?: string, email?: string): Promise<StudentResponse> {
-  const url = new URL(`${process.env.NEXT_PUBLIC_API_URL}/api/students`);
+export async function studentGET(name?: string, email?: string): Promise<{ room?: string; pdfs?: Blob[] }> {
+  const url = new URL(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/students`);
   url.searchParams.append('email', email);
 
   const res = await fetch(url, {
@@ -33,13 +23,10 @@ export async function studentGET(name?: string, email?: string): Promise<Student
   const pdfs: Blob[] = [];
   for (let i = 0; i < 3; i++) {
     const pdf = form.get(`pdf_${i}`);
-    if (pdf instanceof Blob) pdfs.push(pdf);
+    if (pdf instanceof Blob) {
+      pdfs.push(pdf);
+    }
   }
 
-  const student: StudentInfo = {
-    ...data.student,
-    pdfs,
-  };
-
-  return { student };
+  return { ...data.student, pdfs };
 }
