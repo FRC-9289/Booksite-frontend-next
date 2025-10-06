@@ -20,13 +20,10 @@ export default async function auth(id, name, email, bus) {
       }
   
       const data = await response.json();
-      return data;
-
-      
+      return data;  
   
     } catch (error) {
       console.error('Error during authentication:', error);
       throw error;
     }
   }
-  

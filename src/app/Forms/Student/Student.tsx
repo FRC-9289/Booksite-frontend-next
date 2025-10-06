@@ -1,84 +1,199 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import studentPOST from '../../api/studentPOST.api';
+import { studentGET } from '../../api/studentGET.api';
+import { roomGET, roomsGET } from '../../api/roomGET.api';
 import styles from './Student.module.css';
+import { useEffect, useState } from 'react';
 
 export default function StudentSignUp() {
-  const [formData, setFormData] = useState({
-    'student-id': '',
-    'student-name': '',
-    'student-email': '',
-  });
-
+  const [rooms, setRooms] = useState<string[]>([]);
+  const [uploaded, setUploaded] = useState(false);
+  const [selectedRoom, setSelectedRoom] = useState('');
   const [status, setStatus] = useState('');
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const email = localStorage.getItem('userEmail');
+        if (!email) {
+          console.error('No email found in localStorage');
+          return;
+        }
 
-  const handleSubmit = (e) => {
+        const data = await studentGET(email);
+        let roomList = (await roomsGET()) || [];
+
+        if (!roomList.length) {
+          console.warn('No rooms received from backend, using fallback list.');
+          roomList = [
+            '1M1', '1M2', '1F1', '1F2',
+            '2M1', '2F1',
+            '3M1', '3F1'
+          ];
+        }
+
+        setRooms(roomList);
+
+        const hasPdfs = data.pdfs?.length === 3;
+        setUploaded(hasPdfs);
+        console.log('Uploaded:', hasPdfs);
+      } catch (err) {
+        console.error('Failed to fetch room data:', err);
+
+        setRooms([
+          '1M1', '1M2', '1F1', '1F2',
+          '2M1', '2F1',
+          '3M1', '3F1'
+        ]);
+      }
+    }
+
+    fetchData();
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const submissions =
-      JSON.parse(localStorage.getItem('submissions')) || [];
+    const email = localStorage.getItem('userEmail');
+    if (!email) {
+      setStatus('Missing email. Please log in again.');
+      return;
+    }
 
-    submissions.push({ ...formData, approved: false });
+    const formData = new FormData(e.currentTarget);
 
-    localStorage.setItem('submissions', JSON.stringify(submissions));
+    const pdfs: Blob[] = [];
+    for (let i = 1; i <= 3; i++) {
+      const file = formData.get(`file${i}`);
+      if (file instanceof Blob) {
+        pdfs.push(file);
+      }
+    }
 
-    setStatus('Submitted successfully!');
-    setFormData({
-      'student-id': '',
-      'student-name': '',
-      'student-email': '',
-    });
+
+    const student = {
+      email,
+      room: selectedRoom,
+      pdfs,
+      studentId: formData.get("student-id") as string || ''
+    };
+
+    formData.append('email', student.email);
+    formData.append('name', localStorage.getItem('userName') || 'Unknown');
+    formData.append('studentId', student.studentId);
+    if (student.room !== undefined) formData.append('room', String(student.room));
+
+    try {
+      const response = await studentPOST(formData);
+      setStatus('Submission successful!');
+      console.log('Success:', response);
+      setUploaded(true);
+    } catch (err) {
+      setStatus('Submission failed.');
+      console.error('Error:', err);
+    }
   };
+
+  const groupedByBus: Record<string, { M: string[]; F: string[] }> = {};
+  rooms.forEach((room) => {
+    const match = room.match(/^(\d+)([MF])(\d+)$/);
+    if (!match) return;
+    const [_, busNum, gender] = match;
+    if (!groupedByBus[busNum]) groupedByBus[busNum] = { M: [], F: [] };
+    groupedByBus[busNum][gender].push(room);
+  });
 
   return (
     <div className={styles.container}>
       <h2 className={styles.heading}>Village Robotics 9289 Sign Up</h2>
-      <form onSubmit={handleSubmit}>
-        <div className={styles.group}>
-          <label htmlFor="student-id" className={styles.label}>Student ID *</label>
-          <input
-            type="text"
-            id="student-id"
-            name="student-id"
-            value={formData['student-id']}
-            onChange={handleChange}
-            required
-            className={styles.input}
-          />
+
+      {uploaded && (
+        <p className={styles.status}>
+          You have previously uploaded PDFs. You may upload again to replace them.
+        </p>
+      )}
+
+      <form onSubmit={handleSubmit} className={styles.form}>
+        <div className={styles.formLayout}>
+          <div className={styles.busContainer}>
+            {Object.entries(groupedByBus).map(([busNum, genders]) => (
+              <fieldset key={busNum} className={styles.busFieldset}>
+                <legend>Bus {busNum}</legend>
+
+                <div className={styles.genderContainer}>
+                  {genders.M.length > 0 && (
+                    <fieldset className={styles.genderFieldset}>
+                      <legend>Male Rooms</legend>
+                      {genders.M.map((roomId) => (
+                        <label key={roomId} className={styles.radioOption}>
+                          <input
+                            type="radio"
+                            name="room_select"
+                            value={roomId}
+                            checked={selectedRoom === roomId}
+                            onChange={(e) => setSelectedRoom(e.target.value)}
+                            required
+                          />
+                          <span className={styles.radioLabel}>{roomId.replace(/[0-9]/, '').replace('M', 'Male ').replace('F', 'Female ')}</span>
+                        </label>
+                      ))}
+                    </fieldset>
+                  )}
+
+                  {genders.F.length > 0 && (
+                    <fieldset className={styles.genderFieldset}>
+                      <legend>Female Rooms</legend>
+                      {genders.F.map((roomId) => (
+                        <label key={roomId} className={styles.radioOption}>
+                          <input
+                            type="radio"
+                            name="room_select"
+                            value={roomId}
+                            checked={selectedRoom === roomId}
+                            onChange={(e) => setSelectedRoom(e.target.value)}
+                            required
+                          />
+                          <span className={styles.radioLabel}>{roomId.replace(/[0-9]/, '').replace('M', 'Male ').replace('F', 'Female ')}</span>
+                        </label>
+                      ))}
+                    </fieldset>
+                  )}
+                </div>
+              </fieldset>
+            ))}
+          </div>
+
+          <div className={styles.fileUploadContainer}>
+            <fieldset className={styles.fileUploadFieldset}>
+              <legend>Upload Required PDFs</legend>
+              {[1, 2, 3].map((i) => (
+                <div key={i} className={styles.fileInputGroup}>
+                  <label htmlFor={`file${i}`}>PDF {i}:</label>
+                  <input
+                    type="file"
+                    id={`file${i}`}
+                    name={`file${i}`}
+                    accept="application/pdf"
+                    required
+                  />
+                </div>
+              ))}
+              <legend>Student ID</legend>
+            </fieldset>
+            <fieldset className={styles.fileUploadFieldset}>
+              <legend>Student ID</legend>
+              <div className={styles.fileInputGroup}>
+                <label htmlFor='id'>Student ID Number:</label>
+                <input type='text' id={'student-id'} name='student-id' required></input>
+              </div>
+            </fieldset>
+          </div>
         </div>
-        <div className={styles.group}>
-          <label htmlFor="student-name" className={styles.label}>Name *</label>
-          <input
-            type="text"
-            id="student-name"
-            name="student-name"
-            value={formData['student-name']}
-            onChange={handleChange}
-            required
-            className={styles.input}
-          />
-        </div>
-        <div className={styles.group}>
-          <label htmlFor="student-email" className={styles.label}>Email *</label>
-          <input
-            type="email"
-            id="student-email"
-            name="student-email"
-            value={formData['student-email']}
-            onChange={handleChange}
-            required
-            className={styles.input}
-          />
-        </div>
-        <button type="submit" className={styles.button}>Sign Up</button>
+
+        <button type="submit" className={styles.button}>
+          Sign Up / Update
+        </button>
         <p className={styles.status}>{status}</p>
       </form>
     </div>
