@@ -20,17 +20,37 @@ export default function StudentSignUp() {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     const submissions =
       JSON.parse(localStorage.getItem('submissions')) || [];
-
+  
     submissions.push({ ...formData, approved: false });
-
+  
     localStorage.setItem('submissions', JSON.stringify(submissions));
-
-    setStatus('Submitted successfully!');
+  
+    // Send confirmation email
+    try {
+      const res = await fetch('/api/send-confirmation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: formData['student-email'],
+          name: formData['student-name'],
+        }),
+      });
+  
+      if (res.ok) {
+        setStatus('Submitted successfully! Confirmation email sent.');
+      } else {
+        setStatus('Submitted, but failed to send confirmation email.');
+      }
+    } catch (error) {
+      console.error(error);
+      setStatus('Error sending email.');
+    }
+  
     setFormData({
       'student-id': '',
       'student-name': '',

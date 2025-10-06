@@ -29,19 +29,35 @@ export default function Admin() {
       .reverse();
 
     setSubmissions(filtered);
-  }; //This should be on backend, why is it on frontend
+  };
 
-  const updateStatus = (index, action) => {
+  const updateStatus = async (index, action) => {
     const saved = JSON.parse(localStorage.getItem('submissions')) || [];
-
+    const student = saved[index];
+  
     if (action === 'approve') {
       saved[index].approved = true;
       saved[index].revoked = false;
+  
+      // Send approval email after admin approves user
+      try {
+        await fetch('/api/send-approval', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: student['student-email'],
+            name: student['student-name'],
+          }),
+        });
+        console.log(`Approval email sent to ${student['student-email']}`);
+      } catch (err) {
+        console.error('Error sending approval email:', err);
+      }
     } else if (action === 'revoke') {
       saved[index].approved = false;
       saved[index].revoked = true;
     }
-
+  
     localStorage.setItem('submissions', JSON.stringify(saved));
     loadSubmissions(search);
   };
