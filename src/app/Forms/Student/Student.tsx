@@ -2,7 +2,6 @@
 
 import studentPOST from '../../api/studentPOST.api';
 import { studentGET } from '../../api/studentGET.api';
-import { roomGET, roomsGET } from '../../api/roomGET.api';
 import styles from './Student.module.css';
 import { useEffect, useState } from 'react';
 
@@ -21,8 +20,8 @@ export default function StudentSignUp() {
           return;
         }
 
-        const data = await studentGET(email);
-        let roomList = (await roomsGET()) || [];
+        const data = [];
+        let roomList = [];
 
         if (!roomList.length) {
           console.warn('No rooms received from backend, using fallback list.');
