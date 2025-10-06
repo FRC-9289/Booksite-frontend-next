@@ -8,7 +8,7 @@ type StudentResponse = {
   student: StudentInfo;
 };
 
-export async function studentGET(email: string): Promise<StudentResponse> {
+export async function studentGET(name?: string, email?: string): Promise<StudentResponse> {
   const url = new URL(`${process.env.NEXT_PUBLIC_API_URL}/api/students`);
   url.searchParams.append('email', email);
 
