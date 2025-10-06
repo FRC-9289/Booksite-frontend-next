@@ -2,6 +2,7 @@
 
 import studentPOST from '../../api/studentPOST.api';
 import { studentGET } from '../../api/studentGET.api';
+import { roomGET, roomsGET} from '../../api/roomGET.api';
 import styles from './Student.module.css';
 import { useEffect, useState } from 'react';
 
@@ -19,11 +20,13 @@ export default function StudentSignUp() {
           console.error('No email found in localStorage');
           return;
         }
-
-        const data = [];
-        let roomList = [];
-
-        if (!roomList.length) {
+  
+        // 1️⃣ Get student data
+        const studentData = await studentGET(email);
+  
+        // 2️⃣ Get room list
+        let roomList = await roomsGET();
+        if (!roomList || !roomList.length) {
           console.warn('No rooms received from backend, using fallback list.');
           roomList = [
             '1M1', '1M2', '1F1', '1F2',
@@ -31,15 +34,16 @@ export default function StudentSignUp() {
             '3M1', '3F1'
           ];
         }
-
+  
         setRooms(roomList);
-
-        const hasPdfs = data.pdfs?.length === 3;
+  
+        // 3️⃣ Check if student has uploaded all PDFs
+        const hasPdfs = studentData.pdfs?.length === 3;
         setUploaded(hasPdfs);
         console.log('Uploaded:', hasPdfs);
+  
       } catch (err) {
-        console.error('Failed to fetch room data:', err);
-
+        console.error('Failed to fetch data:', err);
         setRooms([
           '1M1', '1M2', '1F1', '1F2',
           '2M1', '2F1',
@@ -47,7 +51,7 @@ export default function StudentSignUp() {
         ]);
       }
     }
-
+  
     fetchData();
   }, []);
 
