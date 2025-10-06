@@ -23,10 +23,13 @@ export default function Admin() {
 
   const loadSubmissions = async (query = '') => {
     const res = await getsubmissions();
+    localStorage.setItem('submissions', JSON.stringify(res));
     setSubmissions(res);
   };
-
-  loadSubmissions();
+  useEffect(() => {
+    loadSubmissions();
+  }
+, []);
 
   if (loading) return <p>Loading...</p>;
 

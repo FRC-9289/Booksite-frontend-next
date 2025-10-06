@@ -69,14 +69,17 @@ export default function StudentSignUp() {
       if (file instanceof Blob) pdfs.push(file);
     }
 
+
     const student = {
       email,
       room: selectedRoom,
       pdfs,
+      studentId: formData.get("student-id") as string || ''
     };
 
     formData.append('email', student.email);
     formData.append('name', localStorage.getItem('userName') || 'Unknown');
+    formData.append('studentId', student.studentId);
     if (student.room !== undefined) formData.append('room', String(student.room));
 
     try {
@@ -174,6 +177,14 @@ export default function StudentSignUp() {
                   />
                 </div>
               ))}
+              <legend>Student ID</legend>
+            </fieldset>
+            <fieldset className={styles.fileUploadFieldset}>
+              <legend>Student ID</legend>
+              <div className={styles.fileInputGroup}>
+                <label htmlFor='id'>Student ID Number:</label>
+                <input type='text' id={'student-id'} name='student-id' required></input>
+              </div>
             </fieldset>
           </div>
         </div>
