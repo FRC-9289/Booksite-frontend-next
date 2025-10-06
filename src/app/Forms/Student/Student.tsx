@@ -71,13 +71,13 @@ export default function StudentSignUp() {
 
     const student = {
       email,
-      room: selectedRoom ? Number(selectedRoom.replace(/\D/g, '')) : undefined,
+      room: selectedRoom,
       pdfs,
     };
 
     formData.append('email', student.email);
+    formData.append('name', localStorage.getItem('userName') || 'Unknown');
     if (student.room !== undefined) formData.append('room', String(student.room));
-    pdfs.forEach((pdf, index) => formData.append(`pdf_${index}`, pdf));
 
     try {
       const response = await studentPOST(formData);
