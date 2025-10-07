@@ -1,5 +1,7 @@
 export async function studentGET(email?: string): Promise<{ room?: string; pdfs?: Blob[] }> {
-  const url = new URL(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/students`);
+  if (!email) throw new Error("Email is required");
+
+  const url = new URL(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/students`);
   url.searchParams.append('email', email);
 
   const res = await fetch(url, {
@@ -13,21 +15,26 @@ export async function studentGET(email?: string): Promise<{ room?: string; pdfs?
     throw new Error('Failed to fetch student data');
   }
 
-  const form = await res.formData();
-  const jsonBlob = form.get('data');
-  if (!jsonBlob) throw new Error('Missing data part in response');
+  const data = await res.json(); // JSON is an array
+  console.log(data);
 
-  const data = JSON.parse(await (jsonBlob as Blob).text()) as { student: any };
+  if (!data || data.length === 0) return { room: undefined, pdfs: [] };
 
-  // Extract PDFs
-  const pdfs: Blob[] = [];
-  for (let i = 0; i < 3; i++) {
-    const pdf = form.get(`pdf_${i}`);
-    if (pdf instanceof Blob) {
-      pdfs.push(pdf);
+  const student = data[0]; // <-- pick the first submission
+
+  // Convert pdfBase64 to Blob
+  const pdfs: Blob[] = (student.pdfFiles || []).map((pdf: any) => {
+    const byteCharacters = atob(pdf.pdfBase64);
+    const byteNumbers = new Array(byteCharacters.length);
+    for (let i = 0; i < byteCharacters.length; i++) {
+      byteNumbers[i] = byteCharacters.charCodeAt(i);
     }
-  }
+    const byteArray = new Uint8Array(byteNumbers);
+    return new Blob([byteArray], { type: "application/pdf" });
+  });
 
-  return { ...data.student, pdfs };
+  return {
+    room: student.room,
+    pdfs
+  };
 }
-//Wolfram121

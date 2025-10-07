@@ -1,5 +1,5 @@
 export async function roomGET(room: string): Promise<string[]> {
-    const url = new URL(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/rooms`);
+    const url = new URL(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/rooms/getroom`);
     url.searchParams.append('room', room);
 
     const res = await fetch(url, {
@@ -17,7 +17,7 @@ export async function roomGET(room: string): Promise<string[]> {
 }
 
 export async function roomsGET(): Promise<string[]> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/rooms`, {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/rooms/getrooms`, {
     method: 'GET',
     headers: {
       'Authorization': `Bearer ${process.env.NEXT_PUBLIC_API_KEY}`,
@@ -29,6 +29,7 @@ export async function roomsGET(): Promise<string[]> {
   }
 
   const data = await res.json();
-  return data.openRooms as string[];
+
+  return data as string[];
 }
 //Wolfram121

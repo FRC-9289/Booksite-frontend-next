@@ -7,7 +7,10 @@ export default async function studentPOST(formData: FormData) {
     body: formData
   });
 
-  console.log(`formData: ${formData.get('email')}, ${formData.get('room')}, ${formData.get('file1')}, ${formData.get('file2')}, ${formData.get('file3')}`);
+  console.log(`formData: ${formData.get('email')}, ${formData.get('room')}, ${formData.get('name')}`);
+  console.log(`file1: ${formData.get('file1')}`);
+  console.log(`file2: ${formData.get('file2')}`);
+  console.log(`file3: ${formData.get('file3')}`);
 
   if (!res.ok) {
     throw new Error(`Failed to submit: ${res.statusText}`);
