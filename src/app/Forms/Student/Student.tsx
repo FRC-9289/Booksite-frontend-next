@@ -85,7 +85,8 @@ export default function StudentSignUp() {
     try {
       const response = await studentPOST(formData);
       setStatus('Submission successful!');
-      console.log('Success:', response);
+      console.log('Success:', response.message);
+      alert(`SUMBISSION ID (REMEBMER): ${response.submissionId}`);
       setUploaded(true);
     } catch (err) {
       setStatus('Submission failed.');
