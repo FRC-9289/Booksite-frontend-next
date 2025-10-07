@@ -31,3 +31,4 @@ export async function roomsGET(): Promise<string[]> {
   const data = await res.json();
   return data.openRooms as string[];
 }
+//Wolfram121
