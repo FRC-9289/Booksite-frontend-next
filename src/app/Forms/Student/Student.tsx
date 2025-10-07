@@ -106,12 +106,6 @@ export default function StudentSignUp() {
     <div className={styles.container}>
       <h2 className={styles.heading}>Village Robotics 9289 Sign Up</h2>
 
-      {uploaded && (
-        <p className={styles.status}>
-          You have previously uploaded PDFs. You may upload again to replace them.
-        </p>
-      )}
-
       <form onSubmit={handleSubmit} className={styles.form}>
         <div className={styles.formLayout}>
           <div className={styles.busContainer}>
