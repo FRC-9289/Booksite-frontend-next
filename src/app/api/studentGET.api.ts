@@ -1,5 +1,5 @@
 export async function studentGET(name?: string, email?: string): Promise<{ room?: string; pdfs?: Blob[] }> {
-  const url = new URL(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/students`);
+  const url = new URL(`${process.env.NEXT_PUBLIC_BACKEND_URL}/wolf/student-get`);
   url.searchParams.append('email', email);
 
   const res = await fetch(url, {

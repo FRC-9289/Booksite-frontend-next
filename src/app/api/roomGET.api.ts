@@ -1,5 +1,5 @@
 export async function roomGET(room: string): Promise<string[]> {
-    const url = new URL(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/rooms`);
+    const url = new URL(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/wolf/room-get`);
     url.searchParams.append('room', room);
 
     const res = await fetch(url, {
@@ -16,8 +16,8 @@ export async function roomGET(room: string): Promise<string[]> {
   return (await res.json()).students as string[];
 }
 
-export async function roomsGET(): Promise<string[]> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/rooms`, {
+export async function roomsGET(): Promise<string[][]> {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/wolf/rooms-get`, {
     method: 'GET',
     headers: {
       'Authorization': `Bearer ${process.env.NEXT_PUBLIC_API_KEY}`,
@@ -25,10 +25,9 @@ export async function roomsGET(): Promise<string[]> {
   });
 
   if (!res.ok) {
-    throw new Error('Failed to fetch open rooms');
+    throw new Error('Failed to fetch rooms');
   }
 
-  const data = await res.json();
-  return data.openRooms as string[];
+  return (await res.json()).rooms as string[][];
 }
 //Wolfram121

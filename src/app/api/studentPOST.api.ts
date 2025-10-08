@@ -1,5 +1,5 @@
 export default async function studentPOST(formData: FormData) {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/submissions/post-students`, {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/wolf/student-post`, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${process.env.NEXT_PUBLIC_API_KEY}`
