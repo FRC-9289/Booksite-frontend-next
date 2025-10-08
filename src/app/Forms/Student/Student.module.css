@@ -209,3 +209,14 @@
 .fileInputGroup input[type="file"]:hover {
   border-color: #4da6ff;
 }
+
+.fullRoom {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.occupantsList {
+  margin: 0.3em 0 0 1.5em;
+  font-size: 0.85em;
+  color: #b0b0b0;
+}
