@@ -78,7 +78,7 @@ export default function StudentSignUp() {
       pdfs,
     };
 
-    formData.append('email', student.email);
+    formData.append('email', email);
     formData.append('name', localStorage.getItem('userName') || 'Unknown');
     if (student.room !== undefined) formData.append('room', String(student.room));
 
@@ -86,6 +86,7 @@ export default function StudentSignUp() {
       const response = await studentPOST(formData);
       setStatus('Submission successful!');
       console.log('Success:', response);
+      alert('Submission successful. For future references, your submission ID is ' + response.submissionId);
       setUploaded(true);
     } catch (err) {
       setStatus('Submission failed.');

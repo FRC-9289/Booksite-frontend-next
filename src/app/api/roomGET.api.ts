@@ -17,7 +17,7 @@ export async function roomGET(room: string): Promise<string[]> {
 }
 
 export async function roomsGET(): Promise<string[]> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/rooms/getrooms`, {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/rooms/getopenrooms`, {
     method: 'GET',
     headers: {
       'Authorization': `Bearer ${process.env.NEXT_PUBLIC_API_KEY}`,
@@ -31,5 +31,6 @@ export async function roomsGET(): Promise<string[]> {
   const data = await res.json();
 
   return data as string[];
+
 }
 //Wolfram121
