@@ -108,3 +108,43 @@
   font-size: 0.95em;
   color: #ccc;
 }
+
+.containerC {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #121212; /* dark background */
+    font-family: 'Arial', sans-serif;
+  }
+  
+  .cardC {
+    background-color: #1e1e1e;
+    padding: 3rem;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+    text-align: center;
+    width: 320px;
+  }
+  
+  .titleC {
+    color: #ffffff;
+    margin-bottom: 2rem;
+    font-size: 2rem;
+  }
+  
+  .buttonC {
+    background: linear-gradient(90deg, #3a8dff, #00b0ff); /* smooth blue gradient */
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-size: 1rem;
+    padding: 0.75rem 1.5rem;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  
+  .buttonC:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(58, 141, 255, 0.5);
+  }
