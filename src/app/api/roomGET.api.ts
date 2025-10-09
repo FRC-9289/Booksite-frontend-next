@@ -1,6 +1,8 @@
-export async function roomGET(room: string): Promise<string[]> {
+export async function roomGET(room: string, grade: number): Promise<string[]> {
     const url = new URL(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/wolf/room-get`);
     url.searchParams.append('room', room);
+    url.searchParams.append('grade', grade.toString());
+
 
     const res = await fetch(url, {
     method: 'GET',
@@ -16,17 +18,16 @@ export async function roomGET(room: string): Promise<string[]> {
   return (await res.json()).students as string[];
 }
 
-export async function roomsGET(): Promise<string[][]> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/wolf/rooms-get`, {
+export async function roomsGET(grade: number): Promise<string[][]> {
+  const url = new URL(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/wolf/rooms-get`);
+  url.searchParams.append('grade', grade.toString());
+
+  const res = await fetch(url, {
     method: 'GET',
-    headers: {
-      'Authorization': `Bearer ${process.env.NEXT_PUBLIC_API_KEY}`,
-    },
+    headers: { 'Authorization': `Bearer ${process.env.NEXT_PUBLIC_API_KEY}` },
   });
 
-  if (!res.ok) {
-    throw new Error('Failed to fetch rooms');
-  }
+  if (!res.ok) throw new Error('Failed to fetch rooms');
 
   return (await res.json()).rooms as string[][];
 }

@@ -1,6 +1,7 @@
-export async function studentGET(name?: string, email?: string): Promise<{ room?: string; pdfs?: Blob[] }> {
+export async function studentGET(email: string, grade: number): Promise<{ room?: string; pdfs?: Blob[] }> {
   const url = new URL(`${process.env.NEXT_PUBLIC_BACKEND_URL}/wolf/student-get`);
   url.searchParams.append('email', email);
+  url.searchParams.append('grade', grade.toString());
 
   const res = await fetch(url, {
     method: 'GET',

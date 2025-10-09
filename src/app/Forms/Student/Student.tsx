@@ -16,18 +16,20 @@ export default function StudentSignUp() {
   const [uploaded, setUploaded] = useState(false);
   const [selectedRoom, setSelectedRoom] = useState('');
   const [status, setStatus] = useState('');
+  const [grade, setGrade] = useState<number | null>(null);
 
   useEffect(() => {
     async function fetchData() {
       try {
+        if (!grade) return;
         const email = localStorage.getItem('userEmail');
         if (!email) {
           console.error('No email found in localStorage');
           return;
         }
 
-        const data = await studentGET(email);
-        const roomListRaw = await roomsGET();
+        const data = await studentGET(email, grade);
+        const roomListRaw = await roomsGET(grade);
 
         const roomList: RoomData[] = (roomListRaw || []).map((arr: string[]) => ({
           roomId: arr[0],
@@ -35,43 +37,36 @@ export default function StudentSignUp() {
         }));
 
         setRooms(roomList);
-
         const hasPdfs = data.pdfs?.length === 3;
         setUploaded(hasPdfs);
+        localStorage.setItem('userGrade', grade.toString());
       } catch (err) {
         console.error('Failed to fetch room data:', err);
       }
     }
 
     fetchData();
-  }, []);
+  }, [grade]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const email = localStorage.getItem('userEmail');
+    const name = localStorage.getItem('userName') || 'Unknown';
+
     if (!email) {
       setStatus('Missing email. Please log in again.');
       return;
     }
-
-    const formData = new FormData(e.currentTarget);
-    const pdfs: Blob[] = [];
-    for (let i = 1; i <= 3; i++) {
-      const file = formData.get(`file${i}`);
-      if (file instanceof Blob) {
-        pdfs.push(file);
-      }
+    if (!grade) {
+      setStatus('Please select a grade.');
+      return;
     }
 
-    const student = {
-      email,
-      room: selectedRoom,
-      pdfs,
-    };
-
-    formData.append('email', student.email);
-    formData.append('name', localStorage.getItem('userName') || 'Unknown');
-    formData.append('room', String(student.room));
+    const formData = new FormData(e.currentTarget);
+    formData.append('email', email);
+    formData.append('name', name);
+    formData.append('room', selectedRoom);
+    formData.append('grade', grade.toString());
 
     try {
       const response = await studentPOST(formData);
@@ -168,6 +163,26 @@ export default function StudentSignUp() {
                 </div>
               ))}
             </fieldset>
+
+            <fieldset className={styles.fileUploadFieldset}>
+              <legend>Select Grade</legend>
+              <label htmlFor="grade">Grade:</label>
+              <select
+                id="grade"
+                name="grade"
+                value={grade ?? ''}
+                onChange={(e) => setGrade(parseInt(e.target.value))}
+                required
+                className={styles.input}
+              >
+                <option value="">-- Select Grade --</option>
+                {Array.from({ length: 8 }, (_, i) => 5 + i).map((g) => (
+                  <option key={g} value={g}>
+                    {g}
+                  </option>
+                ))}
+              </select>
+            </fieldset>
           </div>
         </div>
 
@@ -179,4 +194,3 @@ export default function StudentSignUp() {
     </div>
   );
 }
-//Wolfram121
