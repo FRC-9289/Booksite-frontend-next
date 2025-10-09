@@ -1,14 +1,14 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { studentGET } from '../../api/studentGET.api';
-import styles from './Admin.module.css';
+import { studentGET } from '../../../api/studentGET.api';
+import styles from './Search.module.css';
 
 interface StudentData {
   email: string;
   grade: number;
   room: string;
-  pdfs: Blob[];
+  pdfs: string[];
 }
 
 export default function AdminSearch() {
@@ -17,10 +17,20 @@ export default function AdminSearch() {
   const [student, setStudent] = useState<StudentData | null>(null);
   const [status, setStatus] = useState('');
 
+  useEffect(() => {
+    return () => {
+      student?.pdfs.forEach((url) => URL.revokeObjectURL(url));
+    };
+  }, [student]);
+
   const handleSearch = async () => {
     if (!email && !grade) {
       setStatus('Please provide an email or grade to search.');
       return;
+    }
+
+    if (student?.pdfs) {
+      student.pdfs.forEach((url) => URL.revokeObjectURL(url));
     }
 
     try {
@@ -32,11 +42,13 @@ export default function AdminSearch() {
         return;
       }
 
+      const pdfUrls = result.pdfs.slice(0, 3).map((blob: Blob) => URL.createObjectURL(blob));
+
       setStudent({
         email,
         grade: grade ? Number(grade) : 0,
         room: result.room,
-        pdfs: result.pdfs,
+        pdfs: pdfUrls,
       });
       setStatus('');
     } catch (err) {
@@ -82,7 +94,13 @@ export default function AdminSearch() {
           <div className={styles.pdfContainer}>
             <p>PDFs:</p>
             {student.pdfs.map((url, i) => (
-              <a key={i} href={url} target="_blank" rel="noopener noreferrer">
+              <a
+                key={i}
+                href={url}
+                download={`student_${student.email}_pdf_${i + 1}.pdf`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 PDF {i + 1}
               </a>
             ))}

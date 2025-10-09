@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import styles from './Admin.module.css';
+import styles from './Central.module.css';
 
 export default function AdminCentral() {
     const router = useRouter();
@@ -15,13 +15,13 @@ export default function AdminCentral() {
     }
 
     return (
-        <div className={styles.containerC}>
-            <div className={styles.cardC}>
-                <h1 className={styles.titleC}>CHOOSE</h1>
-                <button className={styles.buttonC} onClick={toCreate}>
+        <div className={styles.container}>
+            <div className={styles.card}>
+                <h1 className={styles.title}>CHOOSE</h1>
+                <button className={styles.button} onClick={toCreate}>
                     Create
                 </button>
-                <button className={styles.buttonC} onClick={toSearch}>
+                <button className={styles.button} onClick={toSearch}>
                     Search
                 </button>
             </div>

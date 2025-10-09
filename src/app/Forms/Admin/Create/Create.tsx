@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import styles from './Admin.module.css';
-import { createRoomsPOST } from '../../api/roomsPOST.api';
+import styles from './Create.module.css';
+import { createRoomsPOST } from '../../../api/roomsPOST.api';
 
 type RoomData = { bus: number; gender: 'M' | 'F'; room: number };
 
