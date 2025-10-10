@@ -47,7 +47,12 @@ export default function Admin() {
     return (
       s.name?.toLowerCase().includes(term) ||
       s.email?.toLowerCase().includes(term) ||
-      s._id?.toLowerCase().includes(term)
+      s._id?.toLowerCase().includes(term) ||
+      String(s.grade)?.toLowerCase().includes(term) ||
+      ("Bus "+s.room[0]).toLowerCase().includes(term) ||
+      ("Room "+s.room[2]).toLowerCase().includes(term) ||
+      (s.room[1] == "M" ? "Male" : "Female").toLowerCase().includes(term) ||
+      s.status.toLowerCase().includes(term)
     );
   });
 
@@ -59,7 +64,7 @@ export default function Admin() {
 
           <input
             type="text"
-            placeholder="Search by Name or Email..."
+            placeholder="Search by Name, Email, Grade, SubmissionId, Bus (Bus [n]) Room (Room [n]) Gender (Male)..."
             className={styles.search}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -72,6 +77,7 @@ export default function Admin() {
               <div className={styles.submission} key={i}>
                 <p><strong>Submission ID:</strong> {s._id}</p>
                 <p><strong>Name:</strong> {s.name}</p>
+                <p><strong>Grade:</strong> {s.grade}</p>
                 <p><strong>Email:</strong> {s.email}</p>
                 <p style={{ color: getColor(s.status) }}>
                   <strong>Status:</strong> {s.status}

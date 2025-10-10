@@ -1,7 +1,8 @@
-export async function roomGET(room: string): Promise<string[]> {
+export async function roomGET(room: string, grade: string): Promise<{ name: string; status: string }[]> {
+  console.log('Fetching students for room:', room);
   const url = new URL(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/room-get`);
   url.searchParams.append('room', room);
-  url.searchParams.append('grade', "10");
+  url.searchParams.append('grade', grade);
 
   const res = await fetch(url, {
   method: 'GET',
@@ -14,14 +15,14 @@ export async function roomGET(room: string): Promise<string[]> {
     throw new Error(`Failed to fetch students of room ${room}`);
   }
 
-  return (await res.json()).students as string[];
+  return (await res.json()).students as{ name: string; status: string }[];
 }
 
-export async function roomsGET(): Promise<string[]> {  // <-- return type fixed
-  console.log(process.env.NEXT_PUBLIC_BACKEND_URL);
+export async function roomsGET(grade: string): Promise<string[]> {  // <-- return type fixed
+  console.log('Fetching all rooms for: ', grade);
 
   const url = new URL(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/rooms-get`);
-  url.searchParams.append('grade', "10");
+  url.searchParams.append('grade', grade);
 
   const res = await fetch(url, {
     method: 'GET',
