@@ -6,7 +6,7 @@ import styles from './Admin.module.css';
 export default function Admin() {
   const [submissions, setSubmissions] = useState<any[]>([]);
   const [search, setSearch] = useState('');
-  const [filter, setFilter] = useState('all'); // ✅ new filter
+  const [filter, setFilter] = useState('all');
 
   useEffect(() => {
     loadSubmissions();
@@ -18,7 +18,7 @@ export default function Admin() {
 
   const loadSubmissions = async (query = '', status = 'all') => {
     try {
-      const res = await fetch(`/api/submissions?search=${encodeURIComponent(query)}&status=${status}`);
+      const res = await fetch(`/api/submissions?search=${encodeURIComponent(query)}&status=${encodeURIComponent(status)}`);
       if (!res.ok) throw new Error('Failed to load submissions');
       const data = await res.json();
       setSubmissions(data);
@@ -63,13 +63,13 @@ export default function Admin() {
       <div className={styles.filters}>
         <input
           type="text"
-          placeholder="Search by ID, Name, or Email..."
+          placeholder="Search by ID, Name, Email, or Status..."
           className={styles.search}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
 
-        {/* ✅ filter dropdown */}
+        {/* filter dropdown */}
         <select
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
@@ -92,7 +92,7 @@ export default function Admin() {
             <p><strong>Email:</strong> {s['student-email']}</p>
             <p><strong>Status:</strong> {s.status}</p>
 
-            {/* ✅ status control dropdown */}
+            {/* status control dropdown */}
             <select
               value={s.status}
               onChange={(e) => updateStatus(s._id, e.target.value)}
