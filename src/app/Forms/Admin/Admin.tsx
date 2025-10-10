@@ -4,103 +4,104 @@ import { useEffect, useState } from 'react';
 import styles from './Admin.module.css';
 
 export default function Admin() {
-  const [submissions, setSubmissions] = useState([]);
+  const [submissions, setSubmissions] = useState<any[]>([]);
   const [search, setSearch] = useState('');
+  const [filter, setFilter] = useState('all'); // ✅ new filter
 
   useEffect(() => {
     loadSubmissions();
   }, []);
 
   useEffect(() => {
-    loadSubmissions(search);
-  }, [search]);
+    loadSubmissions(search, filter);
+  }, [search, filter]);
 
-  const loadSubmissions = (query = '') => {
-    const saved = JSON.parse(localStorage.getItem('submissions')) || [];
-
-    const filtered = saved
-      .map((s, i) => {
-        const combined = `${s['student-id']} ${s['student-name']} ${s['student-email']}`.toLowerCase();
-        const matchScore = combined.includes(query.toLowerCase()) ? 1 : 0;
-        return { s, i, matchScore };
-      })
-      .filter((x) => x.matchScore > 0 || query === '')
-      .sort((a, b) => b.matchScore - a.matchScore)
-      .reverse();
-
-    setSubmissions(filtered);
+  const loadSubmissions = async (query = '', status = 'all') => {
+    try {
+      const res = await fetch(`/api/submissions?search=${encodeURIComponent(query)}&status=${status}`);
+      if (!res.ok) throw new Error('Failed to load submissions');
+      const data = await res.json();
+      setSubmissions(data);
+    } catch (err) {
+      console.error('Error loading submissions:', err);
+    }
   };
 
-  const updateStatus = async (index, action) => {
-    const saved = JSON.parse(localStorage.getItem('submissions')) || [];
-    const student = saved[index];
-  
-    if (action === 'approve') {
-      saved[index].approved = true;
-      saved[index].revoked = false;
-  
-      // Send approval email after admin approves user
-      try {
+  const updateStatus = async (id: string, status: string) => {
+    try {
+      const res = await fetch(`/api/submissions/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status }),
+      });
+      if (!res.ok) throw new Error('Failed to update status');
+
+      const updated = await res.json();
+
+      // Send email if approved
+      if (status === 'approved') {
         await fetch('/api/send-approval', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            email: student['student-email'],
-            name: student['student-name'],
+            email: updated['student-email'],
+            name: updated['student-name'],
           }),
         });
-        console.log(`Approval email sent to ${student['student-email']}`);
-      } catch (err) {
-        console.error('Error sending approval email:', err);
       }
-    } else if (action === 'revoke') {
-      saved[index].approved = false;
-      saved[index].revoked = true;
+
+      loadSubmissions(search, filter);
+    } catch (err) {
+      console.error('Error updating status:', err);
     }
-  
-    localStorage.setItem('submissions', JSON.stringify(saved));
-    loadSubmissions(search);
   };
 
   return (
     <div className={styles.container}>
       <h2 className={styles.heading}>Admin Dashboard</h2>
-      <input
-        type="text"
-        placeholder="Search by ID, Name, or Email..."
-        className={styles.search}
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
+
+      <div className={styles.filters}>
+        <input
+          type="text"
+          placeholder="Search by ID, Name, or Email..."
+          className={styles.search}
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+
+        {/* ✅ filter dropdown */}
+        <select
+          value={filter}
+          onChange={(e) => setFilter(e.target.value)}
+          className={styles.dropdown}
+        >
+          <option value="all">All</option>
+          <option value="approved">Approved</option>
+          <option value="denied">Denied</option>
+          <option value="pending">Pending</option>
+        </select>
+      </div>
 
       {submissions.length === 0 ? (
-        <p>No submissions yet.</p>
+        <p>No submissions found.</p>
       ) : (
-        submissions.map(({ s, i }) => (
-          <div className={styles.submission} key={i}>
+        submissions.map((s) => (
+          <div className={styles.submission} key={s._id}>
             <p><strong>ID:</strong> {s['student-id']}</p>
             <p><strong>Name:</strong> {s['student-name']}</p>
             <p><strong>Email:</strong> {s['student-email']}</p>
-            <p>
-              <strong>Status: </strong>
-              {s.revoked ? (
-                <span className={styles.revoked}>❌ Revoked</span>
-              ) : s.approved ? (
-                <span className={styles.approved}>✅ Approved</span>
-              ) : (
-                <span className={styles.pending}>❌ Pending</span>
-              )}
-            </p>
-            {!s.revoked && !s.approved && (
-              <button onClick={() => updateStatus(i, 'approve')} className={styles.button}>
-                Approve
-              </button>
-            )}
-            {s.approved && (
-              <button onClick={() => updateStatus(i, 'revoke')} className={`${styles.button} ${styles.revoke}`}>
-                Revoke
-              </button>
-            )}
+            <p><strong>Status:</strong> {s.status}</p>
+
+            {/* ✅ status control dropdown */}
+            <select
+              value={s.status}
+              onChange={(e) => updateStatus(s._id, e.target.value)}
+              className={styles.dropdown}
+            >
+              <option value="pending">Pending</option>
+              <option value="approved">Approved</option>
+              <option value="denied">Denied</option>
+            </select>
           </div>
         ))
       )}
