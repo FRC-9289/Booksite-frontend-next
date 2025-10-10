@@ -7,31 +7,49 @@ import getsubmissions from '../../api/getsubmissions.api';
 export default function Admin() {
   const [submissions, setSubmissions] = useState([]);
   const [search, setSearch] = useState('');
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(true);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // ✅ Only runs in browser
+    // ✅ Runs only in the browser
     const adminStatus = localStorage.getItem('isAdmin') === 'true';
     setIsAdmin(adminStatus);
     setLoading(false);
   }, []);
 
-  useEffect(() => {
-    if (isAdmin) loadSubmissions(search);
-  }, [isAdmin, search]);
-
-  const loadSubmissions = async (query = '') => {
+  const loadSubmissions = async () => {
     const res = await getsubmissions();
     localStorage.setItem('submissions', JSON.stringify(res));
     setSubmissions(res);
   };
+
   useEffect(() => {
-    loadSubmissions();
-  }
-, []);
+    if (isAdmin) loadSubmissions();
+  }, [isAdmin]);
 
   if (loading) return <p>Loading...</p>;
+
+  const getColor = (status) => {
+    switch (status) {
+      case 'pending':
+        return 'orange';
+      case 'approved':
+        return 'green';
+      case 'rejected':
+        return 'red';
+      default:
+        return 'gray';
+    }
+  };
+
+  const filteredSubmissions = submissions.filter((s) => {
+    const term = search.toLowerCase();
+    return (
+      s.name?.toLowerCase().includes(term) ||
+      s.email?.toLowerCase().includes(term) ||
+      s._id?.toLowerCase().includes(term)
+    );
+  });
 
   return (
     <>
@@ -47,14 +65,19 @@ export default function Admin() {
             onChange={(e) => setSearch(e.target.value)}
           />
 
-          {submissions.length === 0 ? (
-            <p>No submissions yet.</p>
+          {filteredSubmissions.length === 0 ? (
+            <p>No submissions found.</p>
           ) : (
-            submissions.map((s, i) => (
+            filteredSubmissions.map((s, i) => (
               <div className={styles.submission} key={i}>
                 <p><strong>Submission ID:</strong> {s._id}</p>
                 <p><strong>Name:</strong> {s.name}</p>
                 <p><strong>Email:</strong> {s.email}</p>
+                <p style={{ color: getColor(s.status) }}>
+                  <strong>Status:</strong> {s.status}
+                </p>
+                <p><strong>Bus: </strong>{s.room[0]}</p>
+                <p><strong>Room: </strong>{s.room[1] == "M" ? "Male" : "Female"} {s.room[2]}</p>
               </div>
             ))
           )}

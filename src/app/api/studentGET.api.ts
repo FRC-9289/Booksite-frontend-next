@@ -1,6 +1,9 @@
-export async function studentGET(name?: string, email?: string): Promise<{ room?: string; pdfs?: Blob[] }> {
-  const url = new URL(`${process.env.NEXT_PUBLIC_BACKEND_URL}/wolf/student-get`);
-  url.searchParams.append('email', email);
+export async function studentGET(name: string, email: string, grade: string): Promise<{ room?: string; pdfs?: Blob[] }> {
+  const url = new URL(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/student-get`);
+  url.searchParams.append("email", email);
+  url.searchParams.append("grade", grade);
+
+  console.log("Sending to url", email);
 
   const res = await fetch(url, {
     method: 'GET',

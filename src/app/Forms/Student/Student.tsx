@@ -2,7 +2,7 @@
 
 import studentPOST from '../../api/studentPOST.api';
 import { studentGET } from '../../api/studentGET.api';
-import { roomsGET } from '../../api/roomGET.api';
+import { roomsGET, roomGET } from '../../api/roomGET.api';
 import styles from './Student.module.css';
 import { useEffect, useState } from 'react';
 
@@ -11,35 +11,39 @@ interface RoomData {
   students: string[];
 }
 
+const BUS_COUNT = 3;
+const ROOMS_PER_GENDER = 3;
+const MAX_ROOM_CAPACITY = 2;
+
 export default function StudentSignUp() {
   const [rooms, setRooms] = useState<RoomData[]>([]);
   const [uploaded, setUploaded] = useState(false);
   const [selectedRoom, setSelectedRoom] = useState('');
   const [status, setStatus] = useState('');
+  const [grade, setGrade] = useState('');
 
   useEffect(() => {
     async function fetchData() {
       try {
+        const name = localStorage.getItem('userName') || 'Unknown';
         const email = localStorage.getItem('userEmail');
-        if (!email) {
-          console.error('No email found in localStorage');
-          return;
-        }
+        if (!email) return console.error('No email found in localStorage');
 
-        const data = await studentGET(email);
-        const roomListRaw = await roomsGET();
+        // Fetch student info
+        const studentData = await studentGET(name, email, '10');
+        setUploaded(studentData.pdfs?.length === 3 || false);
+        if (studentData.room) setSelectedRoom(studentData.room);
 
-        const roomList: RoomData[] = (roomListRaw || []).map((arr: string[]) => ({
-          roomId: arr[0],
-          students: arr.slice(1),
-        }));
+        // Fetch all room IDs
+        const roomIds = await roomsGET();
 
-        setRooms(roomList);
-
-        const hasPdfs = data.pdfs?.length === 3;
-        setUploaded(hasPdfs);
+        // Fetch students for each room
+        const roomsWithStudents: RoomData[] = await Promise.all(
+          roomIds.map(async (roomId) => ({ roomId, students: await roomGET(roomId) }))
+        );
+        setRooms(roomsWithStudents);
       } catch (err) {
-        console.error('Failed to fetch room data:', err);
+        console.error('Failed to fetch data:', err);
       }
     }
 
@@ -48,51 +52,38 @@ export default function StudentSignUp() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const email = localStorage.getItem('userEmail');
-    if (!email) {
-      setStatus('Missing email. Please log in again.');
-      return;
-    }
+    const name = localStorage.getItem('userName') || 'Unknown';
 
     const formData = new FormData(e.currentTarget);
-    const pdfs: Blob[] = [];
-    for (let i = 1; i <= 3; i++) {
-      const file = formData.get(`file${i}`);
-      if (file instanceof Blob) {
-        pdfs.push(file);
-      }
-    }
-
-    const student = {
-      email,
-      room: selectedRoom,
-      pdfs,
-    };
-
-    formData.append('email', student.email);
-    formData.append('name', localStorage.getItem('userName') || 'Unknown');
-    formData.append('room', String(student.room));
+    formData.append('name', name);
+    formData.append('email', localStorage.getItem('userEmail') || '');
+    formData.append('room', selectedRoom);
+    formData.append('grade', grade);
 
     try {
-      const response = await studentPOST(formData);
+      const res = await studentPOST(formData);
+      const subId = res.submissionId;
+      alert(`Submission successful! Your submission ID is ${subId}`);
       setStatus('Submission successful!');
       setUploaded(true);
-      console.log('Success:', response);
     } catch (err) {
+      console.error(err);
       setStatus('Submission failed.');
-      console.error('Error:', err);
     }
   };
 
-  // Group by bus + gender
+  // Pre-generate bus/gender/room grid
   const groupedByBus: Record<string, { M: RoomData[]; F: RoomData[] }> = {};
-  rooms.forEach((r) => {
-    const match = r.roomId.match(/^(\d+)([MF])(\d+)$/);
-    if (!match) return;
-    const [_, busNum, gender] = match;
-    if (!groupedByBus[busNum]) groupedByBus[busNum] = { M: [], F: [] };
-    groupedByBus[busNum][gender].push(r);
-  });
+  for (let bus = 1; bus <= BUS_COUNT; bus++) {
+    groupedByBus[String(bus)] = { M: [], F: [] };
+    for (const gender of ['M', 'F'] as const) {
+      for (let roomNum = 1; roomNum <= ROOMS_PER_GENDER; roomNum++) {
+        const roomId = `${bus}${gender}${roomNum}`;
+        const existing = rooms.find((r) => r.roomId === roomId);
+        groupedByBus[String(bus)][gender].push(existing || { roomId, students: [] });
+      }
+    }
+  }
 
   return (
     <div className={styles.container}>
@@ -110,42 +101,46 @@ export default function StudentSignUp() {
             {Object.entries(groupedByBus).map(([busNum, genders]) => (
               <fieldset key={busNum} className={styles.busFieldset}>
                 <legend>Bus {busNum}</legend>
+
                 <div className={styles.genderContainer}>
                   {(['M', 'F'] as const).map((gender) => (
-                    genders[gender].length > 0 && (
-                      <fieldset key={gender} className={styles.genderFieldset}>
-                        <legend>{gender === 'M' ? 'Male Rooms' : 'Female Rooms'}</legend>
+                    <fieldset key={gender} className={styles.genderFieldset}>
+                      <legend>{gender === 'M' ? 'Male Rooms' : 'Female Rooms'}</legend>
+
+                      <div className={styles.radioGroup}>
                         {genders[gender].map((room) => {
-                          const isFull = room.students.length >= 2;
+                          const isFull = room.students.length >= MAX_ROOM_CAPACITY;
                           return (
-                            <label
+                            <div
                               key={room.roomId}
                               className={`${styles.radioOption} ${isFull ? styles.fullRoom : ''}`}
                             >
                               <input
                                 type="radio"
                                 name="room_select"
+                                id={`radio-${room.roomId}`}
                                 value={room.roomId}
                                 checked={selectedRoom === room.roomId}
-                                onChange={(e) => setSelectedRoom(e.target.value)}
+                                onChange={() => setSelectedRoom(room.roomId)}
                                 disabled={isFull}
                                 required
+                                className={styles.radioInput}
                               />
-                              <span className={styles.radioLabel}>
-                                {room.roomId} – {room.students.length}/2 filled
-                              </span>
+                              <label htmlFor={`radio-${room.roomId}`} className={styles.radioLabel}>
+                                Room {room.roomId[2]} – {room.students.length}/{MAX_ROOM_CAPACITY} filled
+                              </label>
                               {room.students.length > 0 && (
                                 <ul className={styles.occupantsList}>
                                   {room.students.map((s, i) => (
-                                    <li key={i}>{s}</li>
+                                    <li key={i}>{s} ({i+1})</li>
                                   ))}
                                 </ul>
                               )}
-                            </label>
+                            </div>
                           );
                         })}
-                      </fieldset>
-                    )
+                      </div>
+                    </fieldset>
                   ))}
                 </div>
               </fieldset>
@@ -168,6 +163,18 @@ export default function StudentSignUp() {
                 </div>
               ))}
             </fieldset>
+            <fieldset className={styles.fileUploadFieldset}>
+              <legend>Grade</legend>
+                <div className={styles.fileInputGroup}>
+                  <label>Grade</label>
+                  <select name="grade" required onChange={(e) => setGrade(e.target.value)} value={grade}>
+                    <option value="9">9</option>
+                    <option value="10">10</option>
+                    <option value="11">11</option>
+                    <option value="12">12</option>
+                  </select>
+                </div>
+            </fieldset>
           </div>
         </div>
 
@@ -179,4 +186,3 @@ export default function StudentSignUp() {
     </div>
   );
 }
-//Wolfram121
