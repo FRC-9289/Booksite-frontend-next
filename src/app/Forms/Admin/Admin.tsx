@@ -5,7 +5,7 @@ import styles from './Admin.module.css';
 import getsubmissions from '../../api/getsubmissions.api';
 
 export default function Admin() {
-  const [submissions, setSubmissions] = useState([]);
+  const [submissions, setSubmissions] = useState<any[]>([]);
   const [search, setSearch] = useState('');
   const [isAdmin, setIsAdmin] = useState(true);
   const [loading, setLoading] = useState(true);
