@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "dotenv": "^17.2.3",
     "next": "^15.5.3",
     "next-auth": "^4.24.11",
     "nodemailer": "^6.10.1",
