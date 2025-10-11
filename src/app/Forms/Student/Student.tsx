@@ -158,19 +158,6 @@ export default function StudentSignUp() {
                                   {room.students.map((s, i) => (
                                     <li key={i}>
                                       {s.name}{' '}
-                                      <span
-                                        style={{
-                                          color:
-                                            s.status === 'pending'
-                                              ? 'orange'
-                                              : s.status === 'approved'
-                                              ? 'green'
-                                              : 'gray',
-                                          fontSize: '0.9em',
-                                        }}
-                                      >
-                                        ({s.status})
-                                      </span>
                                     </li>
                                   ))}
                                 </ul>
