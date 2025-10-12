@@ -9,6 +9,7 @@ export default function Admin() {
   const [search, setSearch] = useState('');
   const [isAdmin, setIsAdmin] = useState(true);
   const [loading, setLoading] = useState(true);
+  const [gradeFilter, setGradeFilter] = useState('');
 
   useEffect(() => {
     // ✅ Runs only in the browser
@@ -56,23 +57,39 @@ export default function Admin() {
 
   const filteredSubmissions = submissions.filter((s) => {
     const term = search.toLowerCase();
-    return (
+    const matchesSearch =
       s.name?.toLowerCase().includes(term) ||
       s.email?.toLowerCase().includes(term) ||
       s._id?.toLowerCase().includes(term) ||
-      String(s.grade)?.toLowerCase().includes(term) ||
       ("Bus "+s.room[0]).toLowerCase().includes(term) ||
       ("Room "+s.room[2]).toLowerCase().includes(term) ||
       (s.room[1] == "M" ? "Male" : "Female").toLowerCase().includes(term) ||
-      s.status.toLowerCase().includes(term)
-    );
+      s.status.toLowerCase().includes(term);
+  
+    const matchesGrade = gradeFilter ? s.grade.toString() === gradeFilter : true;
+  
+    return matchesSearch && matchesGrade;
   });
+  
 
   return (
     <>
       {!isAdmin ? (
         <div className={styles.container}>
+        <div className={styles.headerRow}>
+          <select
+            onChange={(e) => setGradeFilter(e.target.value)}
+            className={styles.gradeSelect}
+            defaultValue=""
+          >
+            <option value="">All Grades</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+            <option value="11">11</option>
+            <option value="12">12</option>
+          </select>
           <h2 className={styles.heading}>Admin Dashboard</h2>
+        </div>
   
           <input
             type="text"
@@ -127,9 +144,9 @@ export default function Admin() {
             <div className={styles.statusContainer}>
                   <p style={{ color: getColor(submission.status) }}>
                     {submission.status}
+                    
                   </p>
                 </div>
-
               </div>
             ))
           )}
