@@ -43,11 +43,11 @@ export default function Admin() {
 
   const getColor = (status) => {
     switch (status) {
-      case 'pending':
+      case 'Pending':
         return 'orange';
-      case 'approved':
+      case 'Approved':
         return 'green';
-      case 'rejected':
+      case 'Rejected':
         return 'red';
       default:
         return 'gray';
@@ -91,9 +91,6 @@ export default function Admin() {
                 <p><strong>Name:</strong> {submission.name}</p>
                 <p><strong>Grade:</strong> {submission.grade}</p>
                 <p><strong>Email:</strong> {submission.email}</p>
-                <p style={{ color: getColor(submission.status) }}>
-                  <strong>Status:</strong> {submission.status}
-                </p>
                 <p><strong>Bus:</strong> {submission.room[0]}</p>
                 <p>
                   <strong>Room:</strong>{" "}
@@ -104,8 +101,9 @@ export default function Admin() {
                 {/* Display uploaded files */}
                 <div className={styles.filesContainer}>
               {submission.filesData?.map((file, j) => (
+                <div key={j}>
+                <label className={styles.fileLabel}>PDF {j+1}</label>
                 <button
-                  key={j}
                   className={styles.fileButton}
                   onClick={() => {
                     // Convert Base64 → Blob → Object URL
@@ -123,8 +121,14 @@ export default function Admin() {
                 >
                   {file.fileName}
                 </button>
+                </div>
               ))}
             </div>
+            <div className={styles.statusContainer}>
+                  <p style={{ color: getColor(submission.status) }}>
+                    {submission.status}
+                  </p>
+                </div>
 
               </div>
             ))

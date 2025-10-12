@@ -8,6 +8,7 @@
   .heading {
     margin-bottom: 1em;
     color: #4dabf7;
+    text-align: center;
   }
   
   .search {
@@ -46,6 +47,20 @@
     color: #ff9800;
     font-weight: bold;
   }
+
+  .statusContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding : 5px 2px;
+    margin-top : 10px;
+    border-radius: 8px;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+  }
+
+  .statusContainer:hover {
+    background-color: #121212;
+  }
   
   .button {
     margin-top: 0.5em;
@@ -81,6 +96,20 @@
     padding: 0.4em 0.8em;
     background-color: #121212;
     border: none;
+    border-radius: 5px;
+    width: 20%;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+  }
 
+  .fileButton:hover {
+    background-color: #4dabf7;
+    
+  }
+
+  .fileLabel {
+    color: white;
+    font-weight: bold;
+    margin-right: 10px;
   }
   
