@@ -42,8 +42,7 @@
 }
 
 .button {
-  width: 100%;
-  padding: 0.9em;
+  padding: 0.7em 1em;
   background: linear-gradient(135deg, #0078d4, #005fa3);
   color: #fff;
   border: none;
@@ -52,7 +51,6 @@
   font-weight: bold;
   cursor: pointer;
   transition: background 0.3s ease, transform 0.1s ease;
-  margin-top: 1em;
 }
 
 .button:hover {
@@ -107,4 +105,20 @@
   font-weight: 500;
   font-size: 0.95em;
   color: #ccc;
+}
+
+.group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1em;
+  align-items: center;
+}
+
+.group .input {
+  flex: 1 1 30%;
+}
+
+.group .button {
+  flex: 1 1 100px;
+  margin-top: 0;
 }

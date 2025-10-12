@@ -14,16 +14,14 @@ export default function StudentLogin() {
       const email = session.user.email || '';
       const name = session.user.name || '';
 
-      // Save to localStorage
       localStorage.setItem('userEmail', email);
       localStorage.setItem('userName', name);
 
-      // Redirect based on email domain
-      if (email.endsWith('@s.thevillageschool.com')) {
-        router.push('/Forms/Student');
-        localStorage.setItem('isAdmin', 'false');
-      } else if (email.endsWith('@thevillageschool.com')) {
+      if (email.endsWith('@thevillageschool.com')) {
         router.push('/Forms/Admin/Central');
+        localStorage.setItem('isAdmin', 'false');
+      } else if (email.endsWith('@s.thevillageschool.com')) {
+        router.push('/Forms/Student');
         localStorage.setItem('isAdmin', 'true');
       } else {
         alert('Please sign in with your school email.');

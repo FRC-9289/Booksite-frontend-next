@@ -1,4 +1,4 @@
-export async function createRoomsPOST(grade: number, rooms: string[]): Promise<any> {
+export async function roomsPOST(grade: number, rooms: string[]): Promise<any> {
   const url = new URL(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/wolf/rooms-post`);
 
   const res = await fetch(url.toString(), {

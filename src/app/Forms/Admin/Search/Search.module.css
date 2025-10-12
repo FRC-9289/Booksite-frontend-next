@@ -108,3 +108,29 @@
   font-size: 0.95em;
   color: #ccc;
 }
+
+.pdfButtonContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6em;
+  margin-top: 0.5em;
+}
+
+.pdfButton {
+  background: linear-gradient(135deg, #4da6ff, #0078d4);
+  color: #fff;
+  border: none;
+  padding: 0.5em 1em;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.3s, transform 0.1s;
+}
+
+.pdfButton:hover {
+  background: linear-gradient(135deg, #66b2ff, #0090ff);
+}
+
+.pdfButton:active {
+  transform: scale(0.97);
+}

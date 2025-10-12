@@ -19,40 +19,41 @@ export default function AdminSearch() {
 
   useEffect(() => {
     return () => {
-      student?.pdfs.forEach((url) => URL.revokeObjectURL(url));
+      student?.pdfs.forEach(URL.revokeObjectURL);
     };
   }, [student]);
 
   const handleSearch = async () => {
-    if (!email && !grade) {
-      setStatus('Please provide an email or grade to search.');
+    if (!email || !grade) {
+      setStatus('Please provide both email and grade to search.');
+      setStudent(null);
       return;
     }
 
-    if (student?.pdfs) {
-      student.pdfs.forEach((url) => URL.revokeObjectURL(url));
-    }
+    student?.pdfs.forEach(URL.revokeObjectURL);
 
     try {
-      const result = await studentGET(email || undefined, grade ? Number(grade) : undefined);
-
+      const result = await studentGET(email, Number(grade));
       if (!result) {
         setStudent(null);
         setStatus('No student found.');
         return;
       }
 
-      const pdfUrls = result.pdfs.slice(0, 3).map((blob: Blob) => URL.createObjectURL(blob));
+      const pdfUrls = (result.pdfs || []).map((blob) =>
+        URL.createObjectURL(blob)
+      );
 
       setStudent({
         email,
-        grade: grade ? Number(grade) : 0,
-        room: result.room,
+        grade: Number(grade),
+        room: result.room || '',
         pdfs: pdfUrls,
       });
       setStatus('');
     } catch (err) {
-      console.error(err);
+      console.error('Search failed:', err);
+      setStudent(null);
       setStatus('Failed to fetch student.');
     }
   };
@@ -69,6 +70,7 @@ export default function AdminSearch() {
           onChange={(e) => setEmail(e.target.value)}
           className={styles.input}
         />
+
         <label>Grade:</label>
         <select
           value={grade}
@@ -76,11 +78,16 @@ export default function AdminSearch() {
           className={styles.input}
         >
           <option value="">-- Select Grade --</option>
-          {Array.from({ length: 8 }, (_, i) => 5 + i).map((g) => (
-            <option key={g} value={g}>{g}</option>
+          {Array.from({ length: 4 }, (_, i) => 9 + i).map((g) => (
+            <option key={g} value={g}>
+              {g}
+            </option>
           ))}
         </select>
-        <button onClick={handleSearch} className={styles.button}>Search</button>
+
+        <button onClick={handleSearch} className={styles.button}>
+          Search
+        </button>
       </div>
 
       {status && <p className={styles.status}>{status}</p>}
@@ -92,21 +99,26 @@ export default function AdminSearch() {
           <p><strong>Room:</strong> {student.room}</p>
 
           <div className={styles.pdfContainer}>
-            <p>PDFs:</p>
-            {student.pdfs.map((url, i) => (
-              <a
-                key={i}
-                href={url}
-                download={`student_${student.email}_pdf_${i + 1}.pdf`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                PDF {i + 1}
-              </a>
-            ))}
+            <p><strong>PDFs:</strong></p>
+            {student.pdfs.length > 0 ? (
+              <div className={styles.pdfButtonContainer}>
+                {student.pdfs.map((url, i) => (
+                  <button
+                    key={i}
+                    className={styles.pdfButton}
+                    onClick={() => window.open(url, "_blank")}
+                  >
+                    PDF {i + 1}
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <p>No PDFs available.</p>
+            )}
           </div>
         </div>
       )}
     </div>
   );
 }
+//Wolfram121

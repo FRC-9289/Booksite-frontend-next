@@ -7,11 +7,11 @@ export default function AdminCentral() {
     const router = useRouter();
 
     const toCreate = () => {
-        router.push('/Forms/Admin/Create.tsx');
+        router.push('/Forms/Admin/Create');
     }
 
     const toSearch = () => {
-        router.push('Forms/Admin/Search.tsx');
+        router.push('/Forms/Admin/Search');
     }
 
     return (
