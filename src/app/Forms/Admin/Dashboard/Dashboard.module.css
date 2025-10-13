@@ -1,0 +1,17 @@
+.buttonContainer {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    gap: 10px;
+}
+
+.button {
+    background: linear-gradient(90deg, #3a8dff, #00b0ff); /* smooth blue gradient */
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-size: 1rem;
+    padding: 0.75rem 1.5rem;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}

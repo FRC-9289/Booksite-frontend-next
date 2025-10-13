@@ -23,7 +23,7 @@ export default function StudentLogin() {
         router.push('/Forms/Student');
         localStorage.setItem('isAdmin', 'false');
       } else if (email.endsWith('@thevillageschool.com')) {
-        router.push('/Forms/Admin');
+        router.push('/Forms/Admin/Dashboard');
         localStorage.setItem('isAdmin', 'true');
       } else {
         alert('Please sign in with your school email.');

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import styles from './Admin.module.css';
-import getsubmissions from '../../api/getsubmissions.api';
+import getsubmissions from '../../../api/getsubmissions.api';
 import { unauthorized } from 'next/navigation';
 
 export default function Admin() {
@@ -64,7 +64,6 @@ export default function Admin() {
       s._id?.toLowerCase().includes(term) ||
       ("Bus "+s.room[0]).toLowerCase().includes(term) ||
       ("Room "+s.room[2]).toLowerCase().includes(term) ||
-      (s.room[1] == "M" ? "Male" : "Female").toLowerCase().includes(term) ||
       s.status.toLowerCase().includes(term);
   
     const matchesGrade = gradeFilter ? s.grade.toString() === gradeFilter : true;
@@ -75,7 +74,7 @@ export default function Admin() {
 
   return (
     <>
-      {isAdmin ? (
+      {!isAdmin ? (
         <div className={styles.container}>
         <div className={styles.headerRow}>
           <select
