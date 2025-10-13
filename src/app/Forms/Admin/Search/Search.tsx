@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { studentGET, studentsGET } from '../../../api/studentGET.api';
-import { approveStudent } from '../../../api/studentPATCH.api';
+import { studentPATCH } from '../../../api/studentPATCH.api';
 import styles from './Search.module.css';
 
 interface StudentData {
@@ -10,7 +10,7 @@ interface StudentData {
   grade: number;
   room: string;
   pdfs: string[];
-  approved?: boolean;
+  status?: number;
 }
 
 export default function AdminSearch() {
@@ -20,7 +20,6 @@ export default function AdminSearch() {
   const [unapproved, setUnapproved] = useState<StudentData[]>([]);
   const [status, setStatus] = useState('');
 
-  // Cleanup object URLs
   useEffect(() => {
     return () => {
       student?.pdfs.forEach(URL.revokeObjectURL);
@@ -38,7 +37,6 @@ export default function AdminSearch() {
       const gradeNum = Number(grade);
       let mainStudent: StudentData | null = null;
 
-      // Fetch main student if email is provided
       if (email) {
         const s = await studentGET(email, gradeNum);
         mainStudent = {
@@ -46,21 +44,18 @@ export default function AdminSearch() {
           grade: gradeNum,
           room: s.room || '',
           pdfs: (s.pdfs || []).map(b => URL.createObjectURL(b)),
-          approved: s.approved
+          status: s.status,
         };
       }
       setStudent(mainStudent);
 
-      // Fetch all students for the grade
       const all = await studentsGET(gradeNum);
-
-      // Filter and map unapproved students in a single pass
       const unapprovedList = all
-        .filter(s => !s.approved && s.email !== email)
+        .filter(s => s.status === 0 && s.email !== email)
         .map(s => ({
           ...s,
           grade: gradeNum,
-          pdfs: (s.pdfs || []).map(b => URL.createObjectURL(b))
+          pdfs: (s.pdfs || []).map(b => URL.createObjectURL(b)),
         }));
 
       setUnapproved(unapprovedList);
@@ -73,7 +68,7 @@ export default function AdminSearch() {
 
   const handleApprove = async (s: StudentData) => {
     try {
-      await approveStudent(s.grade, s.email, true);
+      await studentPATCH(s.grade, s.email, 1);
       setUnapproved(prev => prev.filter(u => u.email !== s.email));
       setStatus(`Approved ${s.email}`);
     } catch (err) {
