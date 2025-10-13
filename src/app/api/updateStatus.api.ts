@@ -21,4 +21,3 @@ export default async function updateStatus(submissionId: string, newStatus: stri
   
     return await res.json();
   }
-  

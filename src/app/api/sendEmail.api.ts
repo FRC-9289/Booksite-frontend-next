@@ -1,7 +1,7 @@
 export default async function sendEmail(email: string, status: string) {
   console.log("Sending email to:", email, "for status:", status);
 
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/send-email`, {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/sendEmail`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
