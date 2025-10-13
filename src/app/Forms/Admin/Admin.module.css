@@ -10,10 +10,23 @@
     color: #4dabf7;
   }
   
-  .search {
-    width: 100%;
-    padding: 0.5em;
+  .filters {
+    display: flex;
+    gap: 1em;
     margin-bottom: 1em;
+  }
+
+  .statusFilter {
+    padding: 0.5em;
+    border-radius: 6px;
+    border: 1px solid #444;
+    background: #1e1e1e;
+    color: #f5f5f5;
+  }
+
+  .search {
+    flex: 1;
+    padding: 0.5em;
     border-radius: 6px;
     border: 1px solid #444;
     background: #1e1e1e;
@@ -81,6 +94,14 @@
     padding: 0.4em 0.8em;
     background-color: #121212;
     border: none;
+  }
 
+  .statusSelect {
+    margin-left: 0.5em;
+    padding: 0.2em 0.5em;
+    border-radius: 4px;
+    border: 1px solid #444;
+    background: #1e1e1e;
+    color: #f5f5f5;
   }
   
