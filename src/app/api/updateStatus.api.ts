@@ -1,13 +1,16 @@
 export default async function updateStatus(submissionId: string, newStatus: string) {
   console.log("Updating status for submission:", submissionId, "to", newStatus);
 
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/update-status`, {
-    method: "PUT",
+  const url = new URL(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/manage-status`);
+  url.searchParams.append("submissionId", submissionId);
+  url.searchParams.append("status", newStatus);
+
+  const res = await fetch(url, {
+    method: "PATCH",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${process.env.NEXT_PUBLIC_API_KEY}`,
     },
-    body: JSON.stringify({ submissionId, status: newStatus }),
   });
 
   if (!res.ok) {

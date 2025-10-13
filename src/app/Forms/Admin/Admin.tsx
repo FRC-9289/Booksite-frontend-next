@@ -91,7 +91,7 @@ export default function Admin() {
 
   return (
     <>
-      {isAdmin ? (
+      {!isAdmin ? (
         <div className={styles.container}>
           <h2 className={styles.heading}>Admin Dashboard</h2>
 
