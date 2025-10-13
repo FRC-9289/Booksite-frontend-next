@@ -3,11 +3,14 @@
 import { useEffect, useState } from 'react';
 import styles from './Admin.module.css';
 import getsubmissions from '../../api/getsubmissions.api';
+import updateStatus from '../../api/updateStatus.api';
+import sendEmail from '../../api/sendEmail.api';
 import { unauthorized } from 'next/navigation';
 
 export default function Admin() {
   const [submissions, setSubmissions] = useState([]);
   const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState('All');
   const [isAdmin, setIsAdmin] = useState(true);
   const [loading, setLoading] = useState(true);
 
@@ -55,9 +58,24 @@ export default function Admin() {
     }
   };
 
+  const handleStatusChange = async (submissionId: string, newStatus: string, email: string) => {
+    try {
+      await updateStatus(submissionId, newStatus);
+      // Send email if approved or rejected
+      if (newStatus === 'approved' || newStatus === 'rejected') {
+        await sendEmail(email, newStatus);
+      }
+      // Reload submissions after update
+      await loadSubmissions();
+    } catch (error) {
+      console.error('Failed to update status:', error);
+      alert('Failed to update status. Please try again.');
+    }
+  };
+
   const filteredSubmissions = submissions.filter((s) => {
     const term = search.toLowerCase();
-    return (
+    const matchesSearch = (
       s.name?.toLowerCase().includes(term) ||
       s.email?.toLowerCase().includes(term) ||
       s._id?.toLowerCase().includes(term) ||
@@ -67,6 +85,8 @@ export default function Admin() {
       (s.room[1] == "M" ? "Male" : "Female").toLowerCase().includes(term) ||
       s.status.toLowerCase().includes(term)
     );
+    const matchesStatus = statusFilter === 'All' || s.status === statusFilter;
+    return matchesSearch && matchesStatus;
   });
 
   return (
@@ -74,14 +94,28 @@ export default function Admin() {
       {isAdmin ? (
         <div className={styles.container}>
           <h2 className={styles.heading}>Admin Dashboard</h2>
-  
-          <input
-            type="text"
-            placeholder="Search by Name, Email, Grade, SubmissionId, Bus (Bus [n]) Room (Room [n]) Gender (Male)..."
-            className={styles.search}
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
+
+          <div className={styles.filters}>
+            {/* Status Filter Dropdown */}
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className={styles.statusFilter}
+            >
+              <option value="All">All Statuses</option>
+              <option value="pending">Pending</option>
+              <option value="approved">Approved</option>
+              <option value="rejected">Rejected</option>
+            </select>
+
+            <input
+              type="text"
+              placeholder="Search by Name, Email, Grade, SubmissionId, Bus (Bus [n])m Room (Room [n]), Gender..."
+              className={styles.search}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
   
           {filteredSubmissions.length === 0 ? (
             <p>No submissions found.</p>
@@ -93,7 +127,16 @@ export default function Admin() {
                 <p><strong>Grade:</strong> {submission.grade}</p>
                 <p><strong>Email:</strong> {submission.email}</p>
                 <p style={{ color: getColor(submission.status) }}>
-                  <strong>Status:</strong> {submission.status}
+                  <strong>Status:</strong>
+                  <select
+                    value={submission.status}
+                    onChange={(e) => handleStatusChange(submission._id, e.target.value, submission.email)}
+                    className={styles.statusSelect}
+                  >
+                    <option value="pending">Pending</option>
+                    <option value="approved">Approved</option>
+                    <option value="rejected">Rejected</option>
+                  </select>
                 </p>
                 <p><strong>Bus:</strong> {submission.room[0]}</p>
                 <p>
