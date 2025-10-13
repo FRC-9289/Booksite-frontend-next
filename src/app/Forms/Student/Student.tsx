@@ -6,7 +6,6 @@ import { studentGET } from '../../api/studentGET.api';
 import { roomsGET, roomGET } from '../../api/roomGET.api';
 import styles from './Student.module.css';
 
-// ✅ Updated to match backend structure
 interface StudentInfo {
   name: string;
   status: string;
@@ -17,17 +16,17 @@ interface RoomData {
   students: StudentInfo[];
 }
 
-const BUS_COUNT = 3;
-const ROOMS_PER_GENDER = 3;
-const MAX_ROOM_CAPACITY = 2;
-
 export default function StudentSignUp() {
   const [rooms, setRooms] = useState<RoomData[]>([]);
   const [uploaded, setUploaded] = useState(false);
   const [selectedRoom, setSelectedRoom] = useState('');
   const [status, setStatus] = useState('');
-  const [grade, setGrade] = useState('10');
+  const [grade, setGrade] = useState('9');
   const [loading, setLoading] = useState(false);
+
+  // Bus/room configuration
+  const [maleRooms, setMaleRooms] = useState<number[]>([2, 3, 2]); // rooms per bus
+  const [femaleRooms, setFemaleRooms] = useState<number[]>([3, 2, 3]);
 
   // Fetch student info and rooms whenever grade changes
   useEffect(() => {
@@ -46,12 +45,10 @@ export default function StudentSignUp() {
         // Fetch all rooms
         const roomIds = await roomsGET(grade);
 
-        // Fetch students for each room safely
         const roomsWithStudents: RoomData[] = await Promise.all(
           roomIds.map(async (roomId) => {
             try {
               const response = await roomGET(roomId, grade);
-              // ✅ Backend returns [{ name, status }], so keep that shape
               return { roomId, students: Array.isArray(response) ? response : [] };
             } catch (err) {
               console.warn(`Failed to fetch students for room ${roomId}:`, err);
@@ -93,16 +90,22 @@ export default function StudentSignUp() {
     }
   };
 
-  // Group rooms by bus and gender
+  // Group rooms dynamically per bus
   const groupedByBus: Record<string, { M: RoomData[]; F: RoomData[] }> = {};
-  for (let bus = 1; bus <= BUS_COUNT; bus++) {
-    groupedByBus[String(bus)] = { M: [], F: [] };
-    for (const gender of ['M', 'F'] as const) {
-      for (let roomNum = 1; roomNum <= ROOMS_PER_GENDER; roomNum++) {
-        const roomId = `${bus}${gender}${roomNum}`;
-        const existing = rooms.find((r) => r.roomId === roomId);
-        groupedByBus[String(bus)][gender].push(existing || { roomId, students: [] });
-      }
+  for (let i = 0; i < Math.max(maleRooms.length, femaleRooms.length); i++) {
+    const busNum = String(i + 1);
+    groupedByBus[busNum] = { M: [], F: [] };
+
+    for (let roomNum = 1; roomNum <= (maleRooms[i] || 0); roomNum++) {
+      const roomId = `${busNum}M${roomNum}`;
+      const existing = rooms.find((r) => r.roomId === roomId);
+      groupedByBus[busNum].M.push(existing || { roomId, students: [] });
+    }
+
+    for (let roomNum = 1; roomNum <= (femaleRooms[i] || 0); roomNum++) {
+      const roomId = `${busNum}F${roomNum}`;
+      const existing = rooms.find((r) => r.roomId === roomId);
+      groupedByBus[busNum].F.push(existing || { roomId, students: [] });
     }
   }
 
@@ -130,41 +133,31 @@ export default function StudentSignUp() {
                     <fieldset key={gender} className={styles.genderFieldset}>
                       <legend>{gender === 'M' ? 'Male Rooms' : 'Female Rooms'}</legend>
                       <div className={styles.radioGroup}>
-                        {genders[gender].map((room) => {
-                          const isFull = room.students.length >= MAX_ROOM_CAPACITY;
-                          return (
-                            <div
-                              key={room.roomId}
-                              className={`${styles.radioOption} ${isFull ? styles.fullRoom : ''}`}
-                            >
-                              <input
-                                type="radio"
-                                name="room_select"
-                                id={`radio-${room.roomId}`}
-                                value={room.roomId}
-                                checked={selectedRoom === room.roomId}
-                                onChange={() => setSelectedRoom(room.roomId)}
-                                disabled={isFull}
-                                required
-                                className={styles.radioInput}
-                              />
-                              <label htmlFor={`radio-${room.roomId}`} className={styles.radioLabel}>
-                                Room {room.roomId[2]} – {room.students.length}/{MAX_ROOM_CAPACITY} filled
-                              </label>
+                        {genders[gender].map((room) => (
+                          <div key={room.roomId} className={styles.radioOption}>
+                            <input
+                              type="radio"
+                              name="room_select"
+                              id={`radio-${room.roomId}`}
+                              value={room.roomId}
+                              checked={selectedRoom === room.roomId}
+                              onChange={() => setSelectedRoom(room.roomId)}
+                              required
+                              className={styles.radioInput}
+                            />
+                            <label htmlFor={`radio-${room.roomId}`} className={styles.radioLabel}>
+                              Room {room.roomId[2]} – {room.students.length} student(s)
+                            </label>
 
-                              {/* ✅ Show student names and statuses */}
-                              {room.students.length > 0 && (
-                                <ul className={styles.occupantsList}>
-                                  {room.students.map((s, i) => (
-                                    <li key={i}>
-                                      {s.name}{' '}
-                                    </li>
-                                  ))}
-                                </ul>
-                              )}
-                            </div>
-                          );
-                        })}
+                            {room.students.length > 0 && (
+                              <ul className={styles.occupantsList}>
+                                {room.students.map((s, i) => (
+                                  <li key={i}>{s.name}</li>
+                                ))}
+                              </ul>
+                            )}
+                          </div>
+                        ))}
                       </div>
                     </fieldset>
                   ))}
