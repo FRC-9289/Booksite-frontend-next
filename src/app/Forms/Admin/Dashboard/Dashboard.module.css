@@ -1,0 +1,61 @@
+.header {
+    width: 100%;
+    text-align: center;
+    margin: 10px;
+}
+
+.h1Header {
+    font-weight: bold;
+    margin: 10px;
+}
+
+.buttonContainer {
+    display: flex;
+    justify-content: space-evenly;
+    margin-top: 20px;
+    gap: 10px;
+    background-color: #1e1e1e;
+    padding: 3rem;
+    border-radius: 12px;
+    width: 50%;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+    max-width: 450px;
+    max-height: 150px;
+}
+
+.centerContainer {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    justify-content: center;
+}
+
+.button {
+    background: linear-gradient(90deg, #3a8dff, #00b0ff); /* smooth blue gradient */
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-size: 1rem;
+    padding: 0.75rem 1.5rem;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(58, 141, 255, 0.5);
+}
+
+.h2 {
+    margin: 20px;
+    font-weight: bold;
+}
+
+.notificationBar {
+    background-color: rgba(51, 51, 51,0.7);
+    border-radius: 20px;
+    margin: 10px;
+    height: 100vh;
+    border-color: rgba(221, 221, 221, 0.241);
+    border-style: dashed;
+}

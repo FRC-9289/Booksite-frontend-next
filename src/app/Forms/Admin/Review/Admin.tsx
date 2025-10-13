@@ -2,10 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import styles from './Admin.module.css';
-import getsubmissions from '../../api/getsubmissions.api';
-import updateStatus from '../../api/updateStatus.api';
-import sendEmail from '../../api/sendEmail.api';
-import { unauthorized } from 'next/navigation';
+import getsubmissions from '../../../api/getsubmissions.api';
+import updateStatus from '../../../api/updateStatus.api';
+import sendEmail from '../../../api/sendEmail.api';
 
 export default function Admin() {
   const [submissions, setSubmissions] = useState([]);
@@ -40,7 +39,7 @@ export default function Admin() {
   
 
   useEffect(() => {
-    if (isAdmin) loadSubmissions();
+    if (!isAdmin) loadSubmissions();
   }, [isAdmin]);
 
   if (loading) return <p>Loading...</p>;

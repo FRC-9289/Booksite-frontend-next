@@ -1,0 +1,143 @@
+.container {
+    padding: 2em;
+    background: #121212;
+    color: #f5f5f5;
+    font-family: Arial, sans-serif;
+    height: 100vh;
+  }
+  
+  .search {
+    width: 100%;
+    padding: 0.5em;
+    margin-bottom: 1em;
+    border-radius: 6px;
+    border: 1px solid #444;
+    background: #1e1e1e;
+    color: #f5f5f5;
+  }
+
+  .headerRow {
+    display: flex;
+    align-items: center;      /* vertically center items */
+    gap: 1em;                 /* space between select and heading */
+    margin-bottom: 1em;
+}
+
+.heading {
+    margin: 0;                /* remove bottom margin so it lines up */
+    color: #4dabf7;
+    font-size: 1.5em;         /* adjust size as needed */
+    text-align: center;
+    width: 87%;
+}
+
+.gradeSelect {
+    width: 120px;
+    padding: 0.4em 0.6em;
+    border-radius: 6px;
+    border: 1px solid #444;
+    background-color: #1e1e1e;
+    color: #f5f5f5;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.gradeSelect:hover {
+    background-color: #2a2a2a;
+}
+
+  
+  .submission {
+    background: #1e1e1e;
+    padding: 1em 1.5em;
+    border-radius: 6px;
+    margin-bottom: 1em;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+  }
+  
+  .submission p {
+    margin: 0.3em 0;
+  }
+  
+  .approved {
+    color: #4caf50;
+    font-weight: bold;
+  }
+  
+  .pending {
+    color: #f44336;
+    font-weight: bold;
+  }
+  
+  .revoked {
+    color: #ff9800;
+    font-weight: bold;
+  }
+
+  .statusContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    margin: 10px auto;   /* top/bottom = 10px, left/right = auto → centers it */
+    width: fit-content;
+    border-radius: 8px;
+
+    transition: background-color 0.3s ease, transform 0.3s ease;
+  }
+  .statusContainer:hover {
+    background-color: #121212;
+  }
+  
+  .button {
+    margin-top: 0.5em;
+    padding: 0.5em 1em;
+    background: #4dabf7;
+    color: darkblue;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+  
+  .button:hover {
+    background: #339af0;
+  }
+  
+  .revoke {
+    background: #f44336;
+  }
+  
+  .revoke:hover {
+    background: #d32f2f;
+  }
+  
+  .filesContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background-color: transparent;
+  }
+
+  .fileButton {
+    padding: 0.4em 0.8em;
+    background: linear-gradient(90deg, #0e62d7, #034f66);
+    border: none;
+    border-radius: 5px;
+    width: 20%;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+  }
+
+  .fileButton:hover {
+    transform: translateY(-2px);
+    
+  }
+
+  .fileLabel {
+    color: white;
+    font-weight: bold;
+    margin-right: 10px;
+  }
+  
