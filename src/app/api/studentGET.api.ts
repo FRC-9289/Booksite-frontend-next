@@ -1,5 +1,4 @@
 export async function studentGET(name: string, email: string, grade: string): Promise<{ room?: string; pdfs?: Blob[] }> {
-  console.log(`API KEY: ${process.env.NEXT_PUBLIC_API_KEY}`);
   console.log('Fetching student data for:', {email, grade }, "from", process.env.NEXT_PUBLIC_BACKEND_URL);
   const url = new URL(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/student-get`);
   url.searchParams.append("email", email);
