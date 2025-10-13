@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import styles from './Admin.module.css';
 import getsubmissions from '../../api/getsubmissions.api';
+import { unauthorized } from 'next/navigation';
 
 export default function Admin() {
   const [submissions, setSubmissions] = useState<any[]>([]);
@@ -74,7 +75,7 @@ export default function Admin() {
 
   return (
     <>
-      {!isAdmin ? (
+      {isAdmin ? (
         <div className={styles.container}>
         <div className={styles.headerRow}>
           <select
@@ -152,9 +153,7 @@ export default function Admin() {
           )}
         </div>
       ) : (
-        <p className={styles.accessDenied}>
-          Access Denied. You are not an admin.
-        </p>
+        <p>You are not authorized to view this page</p>
       )}
     </>
   );
