@@ -1,5 +1,3 @@
-import sendEmail from './sendEmail.api';
-
 export default async function studentPOST(formData: FormData) {
   console.log("Submitting student form:", {
     email: formData.get("email"),
@@ -23,15 +21,6 @@ export default async function studentPOST(formData: FormData) {
   }
 
   const result = await res.json();
-
-  // Send pending email after successful submission
-  const email = formData.get("email") as string;
-  try {
-    await sendEmail(email, 'pending');
-  } catch (emailError) {
-    console.error("Failed to send pending email:", emailError);
-    // Don't throw here, as the submission was successful
-  }
 
   return result;
 }
