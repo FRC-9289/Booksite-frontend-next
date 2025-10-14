@@ -6,7 +6,7 @@ export default async function studentPOST(formData: FormData) {
     name: formData.get("name"),
   });
 
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/student-post`, {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/student/student-post`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${process.env.NEXT_PUBLIC_API_KEY}`,

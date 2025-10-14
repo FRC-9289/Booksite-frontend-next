@@ -1,6 +1,6 @@
 export async function roomGET(room: string, grade: string): Promise<{ name: string; status: string }[]> {
   console.log('Fetching students for room:', room);
-  const url = new URL(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/room-get`);
+  const url = new URL(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/student/room-get`);
   url.searchParams.append('room', room);
   url.searchParams.append('grade', grade);
 
