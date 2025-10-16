@@ -70,6 +70,10 @@ export default function Admin() {
     }
   };
 
+  const addComment = () => {
+    
+  }
+
   const filteredSubmissions = submissions.filter((s) => {
     const term = search.toLowerCase();
     const matchesSearch = (
@@ -119,6 +123,8 @@ export default function Admin() {
           ) : (
             filteredSubmissions.map((submission, i) => (
               <div className={styles.submission} key={i}>
+              <div className={styles.manage} >
+                <div>
                 <p><strong>Submission ID:</strong> {submission._id}</p>
                 <p><strong>Name:</strong> {submission.name}</p>
                 <p><strong>Grade:</strong> {submission.grade}</p>
@@ -128,12 +134,24 @@ export default function Admin() {
                   <strong>Room:</strong>{" "}
                   {submission.room[1] === "M" ? "Male" : "Female"} {submission.room[2]}
                 </p>
+                </div>
+                <div 
+                className={styles.addComment}
+                onClick={
+                  () => {addComment()}
+                }
+                >
+                  <div className={styles.threedots}></div>
+                  <div className={styles.threedots}></div>
+                  <div className={styles.threedots}></div>
+                </div>
+                </div>
   
                 {/* Display uploaded files */}
                 <div className={styles.filesContainer}>
                   {submission.filesData?.map((file, j) => (
                     <button
-                      key={j}
+                      key={file.fileId}
                       className={styles.fileButton}
                       onClick={() => {
                         const byteCharacters = atob(file.base64);

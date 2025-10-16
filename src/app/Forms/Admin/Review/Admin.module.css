@@ -156,3 +156,30 @@
     font-weight: bold;
     margin-right: 10px;
   }
+
+  .addComment {
+    display: flex;
+    border-radius: 10px;
+    height: 30px;
+    width: 30px;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+  }
+
+  .addComment:hover {
+    background-color: #323232;
+  }
+
+  .threedots {
+    background-color: white;
+    border-radius: 50%;
+    width: 5px;
+    height: 5px;
+    margin: 2px;
+  }
+
+  .manage {
+    display: flex;
+    justify-content: space-between;
+  }
