@@ -18,18 +18,19 @@
 
   .headerRow {
     display: flex;
-    align-items: center;      /* vertically center items */
-    gap: 1em;                 /* space between select and heading */
-    margin-bottom: 1em;
-}
-
-.heading {
-    margin: 0;                /* remove bottom margin so it lines up */
+    align-items: center;         /* vertically center heading + dropdown */
+    justify-content: center;     /* horizontally center both together */
+    gap: 1em;                    /* spacing between heading and dropdown */
+    margin-bottom: 1.5em;
+  }
+  
+  .heading {
+    margin: 0;
     color: #4dabf7;
-    font-size: 1.5em;         /* adjust size as needed */
+    font-size: 1.8em;
+    font-weight: bold;
     text-align: center;
-    width: 87%;
-}
+  }
 
 .gradeSelect {
     width: 120px;
@@ -89,6 +90,21 @@
   .statusContainer:hover {
     background-color: #121212;
   }
+
+  .statusFilter {
+    padding: 0.4em 0.8em;
+    border-radius: 6px;
+    border: 1px solid #444;
+    background-color: #1e1e1e;
+    color: #f5f5f5;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  
+  .statusFilter:hover {
+    background-color: #2a2a2a;
+  }
   
   .button {
     margin-top: 0.5em;
@@ -140,4 +156,3 @@
     font-weight: bold;
     margin-right: 10px;
   }
-  

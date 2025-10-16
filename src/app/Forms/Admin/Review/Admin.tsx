@@ -45,11 +45,11 @@ export default function Admin() {
 
   const getColor = (status) => {
     switch (status) {
-      case 'pending':
+      case 'Pending':
         return 'orange';
-      case 'approved':
+      case 'Approved':
         return 'green';
-      case 'rejected':
+      case 'Rejected':
         return 'red';
       default:
         return 'gray';
@@ -90,30 +90,30 @@ export default function Admin() {
     <>
       {!isAdmin ? (
         <div className={styles.container}>
-          <h2 className={styles.heading}>Admin Dashboard</h2>
-
-          <div className={styles.filters}>
-            {/* Status Filter Dropdown */}
+          <div className={styles.headerRow}>
+            <h2 className={styles.heading}>Admin Dashboard</h2>
+  
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
               className={styles.statusFilter}
             >
               <option value="All">All Statuses</option>
-              <option value="pending">Pending</option>
-              <option value="approved">Approved</option>
-              <option value="rejected">Rejected</option>
+              <option value="Pending">Pending</option>
+              <option value="Approved">Approved</option>
+              <option value="Rejected">Rejected</option>
             </select>
-
-            <input
-              type="text"
-              placeholder="Search by Name, Email, Grade, SubmissionId, Bus (Bus [n])m Room (Room [n]), Gender..."
-              className={styles.search}
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
           </div>
   
+          <input
+            type="text"
+            placeholder="Search by Name, Email, Grade, SubmissionId, Bus (Bus [n]), Room (Room [n]), Gender..."
+            className={styles.search}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+  
+          {/* ✅ submissions stay inside the container */}
           {filteredSubmissions.length === 0 ? (
             <p>No submissions found.</p>
           ) : (
@@ -123,50 +123,49 @@ export default function Admin() {
                 <p><strong>Name:</strong> {submission.name}</p>
                 <p><strong>Grade:</strong> {submission.grade}</p>
                 <p><strong>Email:</strong> {submission.email}</p>
+                <p><strong>Bus:</strong> {submission.room[0]}</p>
+                <p>
+                  <strong>Room:</strong>{" "}
+                  {submission.room[1] === "M" ? "Male" : "Female"} {submission.room[2]}
+                </p>
+  
+                {/* Display uploaded files */}
+                <div className={styles.filesContainer}>
+                  {submission.filesData?.map((file, j) => (
+                    <button
+                      key={j}
+                      className={styles.fileButton}
+                      onClick={() => {
+                        const byteCharacters = atob(file.base64);
+                        const byteNumbers = Array.from(byteCharacters, (c) =>
+                          c.charCodeAt(0)
+                        );
+                        const byteArray = new Uint8Array(byteNumbers);
+                        const blob = new Blob([byteArray], { type: "application/pdf" });
+                        const blobUrl = URL.createObjectURL(blob);
+                        window.open(blobUrl, "_blank");
+                      }}
+                    >
+                      {file.fileName}
+                    </button>
+                  ))}
+                </div>
+                <div className={styles.statusContainer}>
                 <p style={{ color: getColor(submission.status) }}>
-                  <strong>Status:</strong>
                   <select
                     value={submission.status}
-                    onChange={(e) => handleStatusChange(submission._id, e.target.value, submission.email)}
-                    className={styles.statusSelect}
+                    onChange={(e) =>
+                      handleStatusChange(submission._id, e.target.value, submission.email)
+                    }
+                    className={styles.statusFilter}
+                    style={{ color: getColor(submission.status) }}
                   >
                     <option value="Pending">Pending</option>
                     <option value="Approved">Approved</option>
                     <option value="Rejected">Rejected</option>
                   </select>
                 </p>
-                <p><strong>Bus:</strong> {submission.room[0]}</p>
-                <p>
-                  <strong>Room:</strong>{" "}
-                  {submission.room[1] === "M" ? "Male" : "Female"}{" "}
-                  {submission.room[2]}
-                </p>
-  
-                {/* Display uploaded files */}
-                <div className={styles.filesContainer}>
-              {submission.filesData?.map((file, j) => (
-                <button
-                  key={j}
-                  className={styles.fileButton}
-                  onClick={() => {
-                    // Convert Base64 → Blob → Object URL
-                    const byteCharacters = atob(file.base64);
-                    const byteNumbers = new Array(byteCharacters.length)
-                      .fill(0)
-                      .map((_, i) => byteCharacters.charCodeAt(i));
-                    const byteArray = new Uint8Array(byteNumbers);
-                    const blob = new Blob([byteArray], { type: "application/pdf" });
-                    const blobUrl = URL.createObjectURL(blob);
-              
-                    // Open in a new tab
-                    window.open(blobUrl, "_blank");
-                  }}
-                >
-                  {file.fileName}
-                </button>
-              ))}
-            </div>
-
+                </div>
               </div>
             ))
           )}
@@ -176,5 +175,6 @@ export default function Admin() {
       )}
     </>
   );
+  
   
 }
