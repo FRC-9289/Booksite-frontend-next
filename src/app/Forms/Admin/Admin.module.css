@@ -4,12 +4,12 @@
     color: #f5f5f5;
     font-family: Arial, sans-serif;
   }
-  
+
   .heading {
     margin-bottom: 1em;
     color: #4dabf7;
   }
-  
+
   .filters {
     display: flex;
     gap: 1em;
@@ -32,7 +32,7 @@
     background: #1e1e1e;
     color: #f5f5f5;
   }
-  
+
   .submission {
     background: #1e1e1e;
     padding: 1em 1.5em;
@@ -40,26 +40,26 @@
     margin-bottom: 1em;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
   }
-  
+
   .submission p {
     margin: 0.3em 0;
   }
-  
+
   .approved {
     color: #4caf50;
     font-weight: bold;
   }
-  
+
   .pending {
     color: #f44336;
     font-weight: bold;
   }
-  
+
   .revoked {
     color: #ff9800;
     font-weight: bold;
   }
-  
+
   .button {
     margin-top: 0.5em;
     padding: 0.5em 1em;
@@ -70,19 +70,19 @@
     cursor: pointer;
     transition: background 0.2s ease;
   }
-  
+
   .button:hover {
     background: #339af0;
   }
-  
+
   .revoke {
     background: #f44336;
   }
-  
+
   .revoke:hover {
     background: #d32f2f;
   }
-  
+
   .filesContainer {
     display: flex;
     flex-direction: column;
@@ -104,4 +104,95 @@
     background: #1e1e1e;
     color: #f5f5f5;
   }
-  
+
+  .configSection {
+    background: #1e1e1e;
+    padding: 1em;
+    border-radius: 6px;
+    margin-bottom: 1em;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+  }
+
+  .configForm {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+  }
+
+  .configForm label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+  }
+
+  .configForm select {
+    padding: 0.5em;
+    border-radius: 4px;
+    border: 1px solid #444;
+    background: #1e1e1e;
+    color: #f5f5f5;
+  }
+
+  .roomInputs {
+    display: flex;
+    gap: 2em;
+  }
+
+  .roomInputs div {
+    flex: 1;
+  }
+
+  .roomInputs label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5em;
+  }
+
+  .roomInputs input {
+    width: 60px;
+    padding: 0.3em;
+    border-radius: 4px;
+    border: 1px solid #444;
+    background: #1e1e1e;
+    color: #f5f5f5;
+  }
+
+  .commentsSection {
+    margin-top: 1em;
+    padding-top: 1em;
+    border-top: 1px solid #444;
+  }
+
+  .comment {
+    background: #2a2a2a;
+    padding: 0.5em;
+    border-radius: 4px;
+    margin-bottom: 0.5em;
+  }
+
+  .commentTextarea {
+    width: 100%;
+    min-height: 60px;
+    padding: 0.5em;
+    border-radius: 4px;
+    border: 1px solid #444;
+    background: #1e1e1e;
+    color: #f5f5f5;
+    resize: vertical;
+  }
+
+  .commentButton {
+    margin-top: 0.5em;
+    padding: 0.5em 1em;
+    background: #4dabf7;
+    color: darkblue;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+
+  .commentButton:hover {
+    background: #339af0;
+  }

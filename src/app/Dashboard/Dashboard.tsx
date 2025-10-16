@@ -11,13 +11,13 @@ export default function Dashboard() {
   useEffect(() => {
     const name = localStorage.getItem('userName');
     if (name) setUserName(name);
-    else redirect('/SignIn');
+    // else redirect('/SignIn');
   }, []);
 
   const handleGoToForms = () => {
     if (localStorage.getItem('userEmail').endsWith('@s.thevillageschool.com')) {
       router.push('/Forms/Student');
-    } else if (localStorage.getItem('userEmail').endsWith('@s.thevillageschool.com')) {
+    } else if (localStorage.getItem('userEmail').endsWith('@thevillageschool.com')) {
       router.push('/Forms/Admin');
     }
   };
@@ -27,7 +27,7 @@ export default function Dashboard() {
       <div className={styles.card}>
         <h1 className={styles.title}>Welcome, {userName}!</h1>
         <p className={styles.status}>Your dashboard is ready.</p>
-        <button className={styles.signInButton}>Go to Forms</button>
+        <button className={styles.signInButton} onClick={handleGoToForms}>Go to Forms</button>
       </div>
     </div>
   );

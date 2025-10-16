@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import studentPOST from '../../api/studentPOST.api';
 import { studentGET } from '../../api/studentGET.api';
 import { roomsGET, roomGET } from '../../api/roomGET.api';
+import getGradeConfig from '../../api/getGradeConfig.api';
 import styles from './Student.module.css';
 
 // ✅ Updated to match backend structure
@@ -17,8 +18,11 @@ interface RoomData {
   students: StudentInfo[];
 }
 
-const BUS_COUNT = 3;
-const ROOMS_PER_GENDER = 3;
+interface GradeConfig {
+  maleRooms: number[];
+  femaleRooms: number[];
+}
+
 const MAX_ROOM_CAPACITY = 2;
 
 export default function StudentSignUp() {
@@ -28,6 +32,7 @@ export default function StudentSignUp() {
   const [status, setStatus] = useState('');
   const [grade, setGrade] = useState('10');
   const [loading, setLoading] = useState(false);
+  const [gradeConfig, setGradeConfig] = useState<GradeConfig>({ maleRooms: [3, 3, 3], femaleRooms: [3, 3, 3] });
 
   // Fetch student info and rooms whenever grade changes
   useEffect(() => {
@@ -37,6 +42,15 @@ export default function StudentSignUp() {
         const name = localStorage.getItem('userName') || 'Unknown';
         const email = localStorage.getItem('userEmail');
         if (!email) return console.error('No email found in localStorage');
+
+        // Fetch grade config
+        try {
+          const config = await getGradeConfig(grade);
+          setGradeConfig(config);
+        } catch (configErr) {
+          console.warn('Failed to fetch grade config, using defaults:', configErr);
+          // Keep default config
+        }
 
         // Fetch student info
         const studentData = await studentGET(name, email, grade);
@@ -93,12 +107,14 @@ export default function StudentSignUp() {
     }
   };
 
-  // Group rooms by bus and gender
+  // Group rooms by bus and gender using dynamic config
   const groupedByBus: Record<string, { M: RoomData[]; F: RoomData[] }> = {};
-  for (let bus = 1; bus <= BUS_COUNT; bus++) {
+  const busCount = Math.max(gradeConfig.maleRooms.length, gradeConfig.femaleRooms.length);
+  for (let bus = 1; bus <= busCount; bus++) {
     groupedByBus[String(bus)] = { M: [], F: [] };
     for (const gender of ['M', 'F'] as const) {
-      for (let roomNum = 1; roomNum <= ROOMS_PER_GENDER; roomNum++) {
+      const roomsForBus = gender === 'M' ? gradeConfig.maleRooms[bus - 1] || 0 : gradeConfig.femaleRooms[bus - 1] || 0;
+      for (let roomNum = 1; roomNum <= roomsForBus; roomNum++) {
         const roomId = `${bus}${gender}${roomNum}`;
         const existing = rooms.find((r) => r.roomId === roomId);
         groupedByBus[String(bus)][gender].push(existing || { roomId, students: [] });
