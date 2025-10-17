@@ -5,7 +5,7 @@ import styles from './Admin.module.css';
 import getsubmissions from '../../api/getsubmissions.api';
 import updateStatus from '../../api/updateStatus.api';
 import sendEmail from '../../api/sendEmail.api';
-import addComment from '../../api/addComment.api';
+// TODO: Import addComment from '../../api/addComment.api';
 import createGradeConfig from '../../api/createGradeConfig.api';
 
 export default function Admin() {
@@ -14,7 +14,7 @@ export default function Admin() {
   const [statusFilter, setStatusFilter] = useState('All');
   const [isAdmin, setIsAdmin] = useState(true);
   const [loading, setLoading] = useState(true);
-  const [commentInputs, setCommentInputs] = useState<{ [key: string]: string }>({});
+  // TODO: const [commentInputs, setCommentInputs] = useState<{ [key: string]: string }>({});
   const [configGrade, setConfigGrade] = useState('9');
   const [maleRooms, setMaleRooms] = useState<number[]>([3, 3, 3]); // Default for 3 buses
   const [femaleRooms, setFemaleRooms] = useState<number[]>([3, 3, 3]); // Default for 3 buses
@@ -78,20 +78,20 @@ export default function Admin() {
     }
   };
 
-  const handleAddComment = async (submissionId: string, email: string) => {
-    const comment = commentInputs[submissionId]?.trim();
-    if (!comment) return alert('Please enter a comment.');
-
-    try {
-      await addComment(submissionId, comment);
-      await sendEmail(email, 'comment');
-      setCommentInputs({ ...commentInputs, [submissionId]: '' });
-      await loadSubmissions();
-    } catch (error) {
-      console.error('Failed to add comment:', error);
-      alert('Failed to add comment. Please try again.');
-    }
-  };
+  // TODO: const handleAddComment = async (submissionId: string, email: string) => {
+  //   const comment = commentInputs[submissionId]?.trim();
+  //   if (!comment) return alert('Please enter a comment.');
+  //
+  //   try {
+  //     await addComment(submissionId, comment);
+  //     await sendEmail(email, 'comment');
+  //     setCommentInputs({ ...commentInputs, [submissionId]: '' });
+  //     await loadSubmissions();
+  //   } catch (error) {
+  //     console.error('Failed to add comment:', error);
+  //     alert('Failed to add comment. Please try again.');
+  //   }
+  // };
 
   const handleCreateConfig = async () => {
     try {
@@ -255,8 +255,8 @@ export default function Admin() {
               ))}
             </div>
 
-                {/* Comments Section */}
-                <div className={styles.commentsSection}>
+                {/* TODO: Comments Section */}
+                {/* <div className={styles.commentsSection}>
                   <h4>Comments</h4>
                   {submission.comments?.map((c, k) => (
                     <div key={k} className={styles.comment}>
@@ -276,7 +276,7 @@ export default function Admin() {
                   >
                     Add Comment
                   </button>
-                </div>
+                </div> */}
 
               </div>
             ))
