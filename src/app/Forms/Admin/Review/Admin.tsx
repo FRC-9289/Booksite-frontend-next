@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import styles from './Admin.module.css';
 import getsubmissions from '../../../api/getsubmissions.api';
 import updateStatus from '../../../api/updateStatus.api';
+import { pushComment } from '../../../api/comment.api';
 
 export default function Admin() {
   const [submissions, setSubmissions] = useState([]);
@@ -70,8 +71,8 @@ export default function Admin() {
     }
   };
 
-  const addComment = () => {
-    
+  const addComment = async (comment, submissionId) => {
+    const { success, commentId } = await pushComment(comment, submissionId);
   }
 
   const filteredSubmissions = submissions.filter((s) => {
@@ -138,7 +139,7 @@ export default function Admin() {
                 <div 
                 className={styles.addComment}
                 onClick={
-                  () => {addComment()}
+                  () => {addComment("Hello",submission._id)}
                 }
                 >
                   <div className={styles.threedots}></div>
