@@ -1,21 +1,21 @@
-export async function pushComment(comment: string, submissionId: string){
-    const res = await fetch(`${process.env.PUBLIC_NEXT_BACKEND_URL}/api/admin/add-comment`, {
+export async function pushComment(comment: string, submissionId: string) {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/add-comment`, {
         method: "POST",
-        headers : {
-            "Authorization" : `Bearer ${process.env.NEXT_PUBLIC_API_KEY}`
+        headers: {
+            "Authorization": `Bearer ${process.env.NEXT_PUBLIC_API_KEY}`,
+            "Content-Type": "application/json",
         },
-        body : JSON.stringify({
+        body: JSON.stringify({
             comment,
-            submissionId
-        })
-    })
+            submissionId,
+        }),
+    });
 
-    if(!res.ok){
+    if (!res.ok) {
         throw new Error("Failed to add comment");
     }
-    else {
-        return res.json();
-    }
+
+    return res.json();
 }
 
 export async function deleteComment(commentId: string){

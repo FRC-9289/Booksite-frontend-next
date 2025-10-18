@@ -12,6 +12,9 @@ export default function Admin() {
   const [statusFilter, setStatusFilter] = useState('All');
   const [isAdmin, setIsAdmin] = useState(true);
   const [loading, setLoading] = useState(true);
+  const [activePanelId, setActivePanelId] = useState<string | null>(null);
+  const [activeCommentPanelId, setActiveCommentPanelId] = useState<string | null>(null);
+
 
   useEffect(() => {
     // ✅ Runs only in the browser
@@ -36,6 +39,16 @@ export default function Admin() {
     localStorage.setItem('submissions_meta', JSON.stringify(lightweight));
     setSubmissions(res);
   };
+
+  const handlePress = (submissionId: string) => {
+    // If clicking the same button, close it; otherwise open this one
+    setActivePanelId(prev => (prev === submissionId ? null : submissionId));
+  };
+
+  const loadCommentScreen = (submissionId: string) => {
+    setActiveCommentPanelId(prev => (prev == submissionId ? null : submissionId));
+  }
+  
   
 
   useEffect(() => {
@@ -50,7 +63,7 @@ export default function Admin() {
         return 'orange';
       case 'Approved':
         return 'green';
-      case 'Rejected':
+      case 'Denied':
         return 'red';
       default:
         return 'gray';
@@ -72,6 +85,8 @@ export default function Admin() {
   };
 
   const addComment = async (comment, submissionId) => {
+    console.log(`Comment: ${comment}`);
+    console.log(`Submission: ${submissionId}`);
     const { success, commentId } = await pushComment(comment, submissionId);
   }
 
@@ -106,7 +121,7 @@ export default function Admin() {
               <option value="All">All Statuses</option>
               <option value="Pending">Pending</option>
               <option value="Approved">Approved</option>
-              <option value="Rejected">Rejected</option>
+              <option value="Denied">Denied</option>
             </select>
           </div>
   
@@ -118,7 +133,7 @@ export default function Admin() {
             onChange={(e) => setSearch(e.target.value)}
           />
   
-          {/* ✅ submissions stay inside the container */}
+
           {filteredSubmissions.length === 0 ? (
             <p>No submissions found.</p>
           ) : (
@@ -138,14 +153,25 @@ export default function Admin() {
                 </div>
                 <div 
                 className={styles.addComment}
-                onClick={
-                  () => {addComment("Hello",submission._id)}
-                }
+                onClick={() => handlePress(submission._id)}
                 >
                   <div className={styles.threedots}></div>
                   <div className={styles.threedots}></div>
                   <div className={styles.threedots}></div>
                 </div>
+                {activePanelId === submission._id && (
+                  <div className={styles.panel}>
+                    <button className={styles.panelButton}
+                    onClick={() => loadCommentScreen(submission._id)}>Add Comment</button>
+                  {
+                    activeCommentPanelId == submission._id && (
+                      <div className={styles.commentScreen}>
+                        <input type='text' placeholder="enter comment here" className={styles.commentInput}></input>
+                      </div>
+                    )
+                  }
+                  </div>
+                )}
                 </div>
   
                 {/* Display uploaded files */}
@@ -181,7 +207,7 @@ export default function Admin() {
                   >
                     <option value="Pending">Pending</option>
                     <option value="Approved">Approved</option>
-                    <option value="Rejected">Rejected</option>
+                    <option value="Denied">Denied</option>
                   </select>
                 </p>
                 </div>
