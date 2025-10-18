@@ -5,7 +5,6 @@ import styles from './Admin.module.css';
 import getsubmissions from '../../api/getsubmissions.api';
 import updateStatus from '../../api/updateStatus.api';
 import sendEmail from '../../api/sendEmail.api';
-// TODO: Import addComment from '../../api/addComment.api';
 import createGradeConfig from '../../api/createGradeConfig.api';
 
 export default function Admin() {
@@ -14,7 +13,7 @@ export default function Admin() {
   const [statusFilter, setStatusFilter] = useState('All');
   const [isAdmin, setIsAdmin] = useState(true);
   const [loading, setLoading] = useState(true);
-  // TODO: const [commentInputs, setCommentInputs] = useState<{ [key: string]: string }>({});
+
   const [configGrade, setConfigGrade] = useState('9');
   const [maleRooms, setMaleRooms] = useState<number[]>([3, 3, 3]); // Default for 3 buses
   const [femaleRooms, setFemaleRooms] = useState<number[]>([3, 3, 3]); // Default for 3 buses
@@ -78,28 +77,13 @@ export default function Admin() {
     }
   };
 
-  // TODO: const handleAddComment = async (submissionId: string, email: string) => {
-  //   const comment = commentInputs[submissionId]?.trim();
-  //   if (!comment) return alert('Please enter a comment.');
-  //
-  //   try {
-  //     await addComment(submissionId, comment);
-  //     await sendEmail(email, 'comment');
-  //     setCommentInputs({ ...commentInputs, [submissionId]: '' });
-  //     await loadSubmissions();
-  //   } catch (error) {
-  //     console.error('Failed to add comment:', error);
-  //     alert('Failed to add comment. Please try again.');
-  //   }
-  // };
-
   const handleCreateConfig = async () => {
     try {
       await createGradeConfig(configGrade, maleRooms, femaleRooms);
-      alert('Grade config created successfully!');
+      alert('Buses created successfully!');
     } catch (error) {
-      console.error('Failed to create config:', error);
-      alert('Failed to create grade config. Please try again.');
+      console.error('Failed to create buses:', error);
+      alert('Failed to create buses. Please try again.');
     }
   };
 
@@ -125,9 +109,9 @@ export default function Admin() {
         <div className={styles.container}>
           <h2 className={styles.heading}>Admin Dashboard</h2>
 
-          {/* Grade Config Creation Section */}
+          {/* Buses Creation Section */}
           <div className={styles.configSection}>
-            <h3>Create Grade Config</h3>
+            <h3>Create Buses and Rooms</h3>
             <div className={styles.configForm}>
               <label>
                 Grade:
@@ -176,7 +160,7 @@ export default function Admin() {
                   ))}
                 </div>
               </div>
-              <button onClick={handleCreateConfig} className={styles.button}>Create Config</button>
+              <button onClick={handleCreateConfig} className={styles.button}>Create Buses and Rooms</button>
             </div>
           </div>
 
@@ -255,28 +239,7 @@ export default function Admin() {
               ))}
             </div>
 
-                {/* TODO: Comments Section */}
-                {/* <div className={styles.commentsSection}>
-                  <h4>Comments</h4>
-                  {submission.comments?.map((c, k) => (
-                    <div key={k} className={styles.comment}>
-                      <p><strong>{c.admin}:</strong> {c.comment}</p>
-                      <small>{new Date(c.timestamp).toLocaleString()}</small>
-                    </div>
-                  ))}
-                  <textarea
-                    placeholder="Add a comment..."
-                    value={commentInputs[submission._id] || ''}
-                    onChange={(e) => setCommentInputs({ ...commentInputs, [submission._id]: e.target.value })}
-                    className={styles.commentTextarea}
-                  />
-                  <button
-                    onClick={() => handleAddComment(submission._id, submission.email)}
-                    className={styles.commentButton}
-                  >
-                    Add Comment
-                  </button>
-                </div> */}
+                {/* TODO: Comments Section - Aditya implement for admin here probably */}
 
               </div>
             ))

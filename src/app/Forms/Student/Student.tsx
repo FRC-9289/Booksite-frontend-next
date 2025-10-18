@@ -32,7 +32,7 @@ export default function StudentSignUp() {
   const [status, setStatus] = useState('');
   const [grade, setGrade] = useState('10');
   const [loading, setLoading] = useState(false);
-  const [gradeConfig, setGradeConfig] = useState<GradeConfig>({ maleRooms: [3, 3, 3], femaleRooms: [3, 3, 3] });
+  const [gradeConfig, setGradeConfig] = useState<GradeConfig>({ maleRooms: [3, 3, 3], femaleRooms: [3, 3, 3] }); // Default config, will change when admin pushes new buses/rooms
 
   // Fetch student info and rooms whenever grade changes
   useEffect(() => {
