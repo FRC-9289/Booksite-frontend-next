@@ -18,6 +18,20 @@ export async function pushComment(comment: string, submissionId: string) {
     return res.json();
 }
 
-export async function deleteComment(commentId: string){
-    const res = await fetch(`${process.env.PUBLIC_NEXT_BACKEND_URL}/api/admin/deleteComment`)
+export async function fetchAllComments(submissionId: string){
+    const url = new URL(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/get-comments`)
+    url.searchParams.append("submissionId",submissionId);
+    const res = await fetch(url, {
+        method: "GET",
+        headers: {
+            "Authorization": `Bearer ${process.env.NEXT_PUBLIC_API_KEY}`,
+            "Content-Type": "application/json",
+        }
+    })
+
+    if(!res.ok){
+        throw new Error(`Failed to fetch comments for submissionId: ${submissionId}`);
+    }
+
+    return res.json();
 }

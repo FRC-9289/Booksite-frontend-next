@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import styles from './Admin.module.css';
 import getsubmissions from '../../../api/getsubmissions.api';
 import updateStatus from '../../../api/updateStatus.api';
-import { pushComment } from '../../../api/comment.api';
+import { fetchAllComments, pushComment } from '../../../api/comment.api';
 
 export default function Admin() {
   const [submissions, setSubmissions] = useState([]);
@@ -14,10 +14,33 @@ export default function Admin() {
   const [loading, setLoading] = useState(true);
   const [activePanelId, setActivePanelId] = useState<string | null>(null);
   const [activeCommentPanelId, setActiveCommentPanelId] = useState<string | null>(null);
+  const [comment, setComment] = useState("");
+  const [commentHistory, setCommentHistory] = useState([])
+
+  const commentStateChange = async (submissionId) => {
+    if (!comment.trim()) return; // ignore empty comments
+  
+    console.log("Comment:", comment);
+    console.log("Submission:", submissionId);
+  
+    try {
+      const { success, commentId } = await pushComment(comment, submissionId);
+      if (success) {
+        console.log("✅ Comment added:", commentId);
+        setComment("");
+      } else {
+        console.error("❌ Failed to add comment");
+      }
+    } catch (err) {
+      console.error("Error adding comment:", err);
+    }
+
+    loadComments(submissionId);
+  };
 
 
   useEffect(() => {
-    // ✅ Runs only in the browser
+
     const adminStatus = localStorage.getItem('isAdmin') === 'true';
     setIsAdmin(adminStatus);
     setLoading(false);
@@ -47,6 +70,8 @@ export default function Admin() {
 
   const loadCommentScreen = (submissionId: string) => {
     setActiveCommentPanelId(prev => (prev == submissionId ? null : submissionId));
+
+    loadComments(submissionId);
   }
   
   
@@ -54,6 +79,12 @@ export default function Admin() {
   useEffect(() => {
     if (!isAdmin) loadSubmissions();
   }, [isAdmin]);
+
+  const loadComments = async (submissionId: string) => {
+    const comments = await fetchAllComments(submissionId);
+    setCommentHistory(comments.comments);
+    console.log("Comments: ",comments);
+  }
 
   if (loading) return <p>Loading...</p>;
 
@@ -166,7 +197,21 @@ export default function Admin() {
                   {
                     activeCommentPanelId == submission._id && (
                       <div className={styles.commentScreen}>
-                        <input type='text' placeholder="enter comment here" className={styles.commentInput}></input>
+                        <div className={styles.textContainer}>
+                            {commentHistory.map((comment, i) => (
+                              <div className={styles.commentBubble} key={comment._id}>
+                                <label>{comment.text}</label>
+                              </div>
+                            ))}
+                        </div>
+                        <div className={styles.sendContainer}>
+                        <input type='text' placeholder="enter comment here" className={styles.commentInput} onChange={(e) => setComment(e.target.value)}></input>
+                          <button
+                          className={styles.sendButton}
+                          onClick={() => commentStateChange(submission._id)}
+                          >
+                          </button>
+                        </div>
                       </div>
                     )
                   }

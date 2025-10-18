@@ -216,49 +216,99 @@
 
   .panelButton {
     padding: 0.4em 0.8em;
-    background: linear-gradient(90deg, #0e62d7, #034f66);
+    background-color: transparent;
     border: none;
     border-radius: 5px;
-    width: 70%;
+    width: 200px;
     cursor: pointer;
     transition: background-color 0.3s ease, transform 0.3s ease;
   }
 
   .panelButton:hover {
-    transform: translateY(-2px);
+    background-color: #2f2f2f;
     
   }
 
   .commentScreen {
-    width: 200px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 240px;
     height: 200px;
     background-color: #2e2e2e;
-    bottom: 120%; /* places it just below the button */
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-    border-radius: 20px;
+    border-radius: 12px;
     margin-top: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    padding: 10px;
+    overflow: hidden; /* clip overflowing children */
   }
-
-  .commentScreen::before {
-    /* optional small arrow above the panel */
-    content: "";
-    top: -6px;
-    right: 10px;
-    width: 10px;
-    height: 10px;
-    background: #1e1e1e;
-    transform: rotate(45deg);
+  
+  
+  .sendContainer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #1e1e1e;
+    border-radius: 8px;
+    padding: 8px;
+    width: 100%;
+    flex-shrink: 0;           /* prevents shrinking */
   }
-
+  
+  
   .commentInput {
-    position: absolute;
-    bottom: 10%;
-    left: 10%;
-    border-radius: 15px;
-    height: 30px;
-    width: 190px;
+    flex: 1;
+    border: 1px solid #444;
+    border-radius: 20px;
+    background: #121212;
+    color: white;
+    padding: 6px 10px;
+    font-size: 0.9em;
+    width: 65%
+  }
+  
+  .commentInput::placeholder {
+    color: #aaa;
+    text-align: left;
+  }
+  
+  .sendButton {
+    border: none;
+    border-radius: 50%;
+    background-color: #1e1e1e;
+    background-image: url("/send.png");
+    background-repeat: no-repeat;
+    background-size: 16px 16px;
+    background-position: center;
+    width: 36px;
+    height: 36px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+  }
+  
+  .sendButton:hover {
+    background-color: #2a2a2a;
+    transform: scale(1.05);
+  }
+  
+  .sendButton:active {
+    transform: scale(0.95);
   }
 
-  .commentInput::placeholder {
-    text-align: center;
+  .commentBubble {
+    background: linear-gradient(90deg, #0e62d7, #034f66);
+    margin-bottom: 6px;
+    border-radius: 10px;
+    padding: 8px;
+    width: fit-content;
+    max-width: 100%;          /* never overflow container */
+    word-break: break-word;   /* wrap long text */
   }
+  
+
+  .textContainer {
+    flex: 1;                  /* take all space above input */
+    overflow-y: auto;         /* scroll if content exceeds height */
+    margin-bottom: 8px;       /* spacing from input */
+  }
+  
