@@ -18,18 +18,19 @@
 
   .headerRow {
     display: flex;
-    align-items: center;      /* vertically center items */
-    gap: 1em;                 /* space between select and heading */
-    margin-bottom: 1em;
-}
-
-.heading {
-    margin: 0;                /* remove bottom margin so it lines up */
+    align-items: center;         /* vertically center heading + dropdown */
+    justify-content: center;     /* horizontally center both together */
+    gap: 1em;                    /* spacing between heading and dropdown */
+    margin-bottom: 1.5em;
+  }
+  
+  .heading {
+    margin: 0;
     color: #4dabf7;
-    font-size: 1.5em;         /* adjust size as needed */
+    font-size: 1.8em;
+    font-weight: bold;
     text-align: center;
-    width: 87%;
-}
+  }
 
 .gradeSelect {
     width: 120px;
@@ -89,6 +90,21 @@
   .statusContainer:hover {
     background-color: #121212;
   }
+
+  .statusFilter {
+    padding: 0.4em 0.8em;
+    border-radius: 6px;
+    border: 1px solid #444;
+    background-color: #1e1e1e;
+    color: #f5f5f5;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  
+  .statusFilter:hover {
+    background-color: #2a2a2a;
+  }
   
   .button {
     margin-top: 0.5em;
@@ -139,5 +155,160 @@
     color: white;
     font-weight: bold;
     margin-right: 10px;
+  }
+
+  .addComment {
+    display: flex;
+    border-radius: 10px;
+    height: 30px;
+    width: 30px;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+  }
+
+  .addComment:hover {
+    background-color: #323232;
+  }
+
+  .threedots {
+    background-color: white;
+    border-radius: 50%;
+    width: 5px;
+    height: 5px;
+    margin: 2px;
+  }
+
+  .manage {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+  }
+
+
+  .panel {
+    position: absolute;
+    top: 20%; /* places it just below the button */
+    right: 0;  /* aligns with right edge of the button */
+    width: fit-content;
+    height: fit-content;
+    background-color: #1e1e1e;
+    color: white;
+    overflow-y: auto;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    z-index: 10;
+  }
+  
+  .panel::before {
+    /* optional small arrow above the panel */
+    content: "";
+    position: absolute;
+    top: -6px;
+    right: 10px;
+    width: 10px;
+    height: 10px;
+    background: #1e1e1e;
+    transform: rotate(45deg);
+  }
+
+
+  .panelButton {
+    padding: 0.4em 0.8em;
+    background-color: transparent;
+    border: none;
+    border-radius: 5px;
+    width: 200px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+  }
+
+  .panelButton:hover {
+    background-color: #2f2f2f;
+    
+  }
+
+  .commentScreen {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 240px;
+    height: 200px;
+    background-color: #2e2e2e;
+    border-radius: 12px;
+    margin-top: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    padding: 10px;
+    overflow: hidden; /* clip overflowing children */
+  }
+  
+  
+  .sendContainer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #1e1e1e;
+    border-radius: 8px;
+    padding: 8px;
+    width: 100%;
+    flex-shrink: 0;           /* prevents shrinking */
+  }
+  
+  
+  .commentInput {
+    flex: 1;
+    border: 1px solid #444;
+    border-radius: 20px;
+    background: #121212;
+    color: white;
+    padding: 6px 10px;
+    font-size: 0.9em;
+    width: 65%
+  }
+  
+  .commentInput::placeholder {
+    color: #aaa;
+    text-align: left;
+  }
+  
+  .sendButton {
+    border: none;
+    border-radius: 50%;
+    background-color: #1e1e1e;
+    background-image: url("/send.png");
+    background-repeat: no-repeat;
+    background-size: 16px 16px;
+    background-position: center;
+    width: 36px;
+    height: 36px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+  }
+  
+  .sendButton:hover {
+    background-color: #2a2a2a;
+    transform: scale(1.05);
+  }
+  
+  .sendButton:active {
+    transform: scale(0.95);
+  }
+
+  .commentBubble {
+    background: linear-gradient(90deg, #0e62d7, #034f66);
+    margin-bottom: 6px;
+    border-radius: 10px;
+    padding: 8px;
+    width: fit-content;
+    max-width: 100%;          /* never overflow container */
+    word-break: break-word;   /* wrap long text */
+  }
+  
+
+  .textContainer {
+    flex: 1;                  /* take all space above input */
+    overflow-y: auto;         /* scroll if content exceeds height */
+    margin-bottom: 8px;       /* spacing from input */
   }
   

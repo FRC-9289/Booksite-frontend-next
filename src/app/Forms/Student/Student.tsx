@@ -194,6 +194,7 @@ export default function StudentSignUp() {
                   required
                   onChange={(e) => setGrade(e.target.value)}
                   value={grade}
+                  className={styles.gradeSelect}
                 >
                   <option value="9">9</option>
                   <option value="10">10</option>

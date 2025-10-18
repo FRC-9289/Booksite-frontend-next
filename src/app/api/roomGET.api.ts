@@ -21,7 +21,7 @@ export async function roomGET(room: string, grade: string): Promise<{ name: stri
 export async function roomsGET(grade: string): Promise<string[]> {  // <-- return type fixed
   console.log('Fetching all rooms for: ', grade);
 
-  const url = new URL(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/rooms-get`);
+  const url = new URL(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/student/rooms-get`);
   url.searchParams.append('grade', grade);
 
   const res = await fetch(url, {
