@@ -108,7 +108,7 @@ export default function StudentSignUp() {
 
   return (
     <div className={styles.container}>
-      <h2 className={styles.heading}>Village Robotics 9289 Sign Up</h2>
+      <h2 className={styles.heading}>TVS Sign Up</h2>
 
       {uploaded && (
         <p className={styles.status}>

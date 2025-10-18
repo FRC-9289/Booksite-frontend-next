@@ -21,10 +21,18 @@ export async function studentGET(email: string, grade: number): Promise<{ room?:
   const form = await res.formData();
 
   const roomBlob = form.get('room');
-  const room = roomBlob ? JSON.parse(await (roomBlob as Blob).text()) as string : undefined;
+  let room: string | undefined;
+  if (roomBlob instanceof Blob) {
+    const text = (await roomBlob.text()).trim();
+    room = text ? JSON.parse(text) : undefined;
+  }
 
   const statusBlob = form.get('status');
-  const status = statusBlob ? JSON.parse(await (statusBlob as Blob).text()) as number : undefined;
+  let status: number | undefined;
+  if (statusBlob instanceof Blob) {
+    const text = (await statusBlob.text()).trim();
+    status = text ? JSON.parse(text) : undefined;
+  }
 
   const pdfs: Blob[] = [];
   for (const [key, value] of form.entries()) {
@@ -48,7 +56,38 @@ export async function studentsGET(grade: number): Promise<{ email: string; room:
     throw new Error(`Failed to fetch students: ${await res.text()}`);
   }
 
-  const students: any[] = await res.json();
+  const contentType = res.headers.get("Content-Type") || "";
+  if (!contentType.includes("multipart/form-data")) {
+    throw new Error(`Unexpected content type: ${contentType}`);
+  }
+
+  const form = await res.formData();
+  const students: { email: string; room: string; status: number; pdfs: Blob[] }[] = [];
+
+  const studentMap: Record<number, { email?: string; room?: string; status?: number; pdfs: Blob[] }> = {};
+
+  for (const [key, value] of form.entries()) {
+    const match = key.match(/^student_(\d+)_(.+)$/);
+    if (!match) continue;
+    const index = parseInt(match[1]);
+    const field = match[2];
+    const entry = (studentMap[index] ||= { pdfs: [] });
+
+    if (field === "email" && value instanceof Blob)
+      entry.email = (await value.text()).trim();
+    else if (field === "room" && value instanceof Blob)
+      entry.room = (await value.text()).trim();
+    else if (field === "status" && value instanceof Blob)
+      entry.status = parseInt((await value.text()).trim(), 10);
+    else if (field.startsWith("pdf_") && value instanceof Blob)
+      entry.pdfs.push(value);
+  }
+
+  for (const idx of Object.keys(studentMap)) {
+    const s = studentMap[+idx];
+    if (s.email) students.push({ email: s.email!, room: s.room || "", status: s.status ?? 0, pdfs: s.pdfs });
+  }
+
   return students;
 }
 //Wolfram121

@@ -17,10 +17,10 @@ export default function StudentLogin() {
       localStorage.setItem('userEmail', email);
       localStorage.setItem('userName', name);
 
-      if (email.endsWith('@s.thevillageschool.com')) {
+      if (email.endsWith('@thevillageschool.com')) {
         router.push('/Forms/Admin/Central');
         localStorage.setItem('isAdmin', 'false');
-      } else if (email.endsWith('@thevillageschool.com')) {
+      } else if (email.endsWith('@s.thevillageschool.com')) {
         router.push('/Forms/Student');
         localStorage.setItem('isAdmin', 'true');
       } else {
