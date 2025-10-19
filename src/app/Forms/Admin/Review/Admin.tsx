@@ -6,7 +6,12 @@ import getsubmissions from '../../../api/getsubmissions.api';
 import updateStatus from '../../../api/updateStatus.api';
 import { fetchAllComments, pushComment } from '../../../api/comment.api';
 
+interface ReviewProps {
+  isAdmin?: boolean;
+}
+
 export default function Admin() {
+  const [mounted, setMounted] = useState(false);
   const [submissions, setSubmissions] = useState([]);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
@@ -44,6 +49,7 @@ export default function Admin() {
     const adminStatus = localStorage.getItem('isAdmin') === 'true';
     setIsAdmin(adminStatus);
     setLoading(false);
+    setMounted(true); // indicate that client has mounted
   }, []);
 
   const loadSubmissions = async () => {
@@ -137,9 +143,13 @@ export default function Admin() {
     return matchesSearch && matchesStatus;
   });
 
-  return (
-    <>
-      {!isAdmin ? (
+  // Don't render until client has mounted
+  if (!mounted) return null;
+
+  // Check admin only on PROD
+  const showAdmin = process.env.NEXT_PUBLIC_PROD === "true" ? isAdmin : true;
+
+  return showAdmin ? (
         <div className={styles.container}>
           <div className={styles.headerRow}>
             <h2 className={styles.heading}>Admin Dashboard</h2>
@@ -262,9 +272,5 @@ export default function Admin() {
         </div>
       ) : (
         <p>You are not authorized to view this page</p>
-      )}
-    </>
-  );
-  
-  
+      )
 }
