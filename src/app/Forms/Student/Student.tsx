@@ -44,9 +44,8 @@ export default function StudentSignUp() {
           setMaleRooms(config.maleRooms || []);
           setFemaleRooms(config.femaleRooms || []);
         } else {
-          // Default if no config found
-          setMaleRooms([3, 3, 3]);
-          setFemaleRooms([3, 3, 3]);
+          // Raise error if config not found and alert students
+          alert("Your admin has not yet set the number of male and female rooms in each bus.");
         }
 
         // Fetch student info
