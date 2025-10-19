@@ -7,8 +7,9 @@ import getGradeConfig from '../../../api/getGradeConfig.api';
 
 export default function CreateForms() {
   const [grade, setGrade] = useState('9');
-  const [maleRooms, setMaleRooms] = useState<number[]>([3, 3, 3]); // Default for 3 buses
-  const [femaleRooms, setFemaleRooms] = useState<number[]>([3, 3, 3]); // Default for 3 buses
+  const [numBuses, setNumBuses] = useState(3);
+  const [maleRooms, setMaleRooms] = useState<number[]>(Array(numBuses).fill(3));
+  const [femaleRooms, setFemaleRooms] = useState<number[]>(Array(numBuses).fill(3));
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
 
@@ -17,8 +18,12 @@ export default function CreateForms() {
     try {
       const config = await getGradeConfig(grade);
       if (config) {
-        setMaleRooms(config.maleRooms || [3, 3, 3]);
-        setFemaleRooms(config.femaleRooms || [3, 3, 3]);
+        const loadedMaleRooms = config.maleRooms || [];
+        const loadedFemaleRooms = config.femaleRooms || [];
+        const busCount = Math.max(loadedMaleRooms.length, loadedFemaleRooms.length, 3);
+        setNumBuses(busCount);
+        setMaleRooms(loadedMaleRooms.length === busCount ? loadedMaleRooms : [...loadedMaleRooms, ...Array(busCount - loadedMaleRooms.length).fill(3)]);
+        setFemaleRooms(loadedFemaleRooms.length === busCount ? loadedFemaleRooms : [...loadedFemaleRooms, ...Array(busCount - loadedFemaleRooms.length).fill(3)]);
         setMessage('Config loaded successfully');
       } else {
         setMessage('No config found for this grade');
@@ -56,6 +61,20 @@ export default function CreateForms() {
     setFemaleRooms(newRooms);
   };
 
+  const addBus = () => {
+    setNumBuses(numBuses + 1);
+    setMaleRooms([...maleRooms, 3]);
+    setFemaleRooms([...femaleRooms, 3]);
+  };
+
+  const removeBus = () => {
+    if (numBuses > 1) {
+      setNumBuses(numBuses - 1);
+      setMaleRooms(maleRooms.slice(0, -1));
+      setFemaleRooms(femaleRooms.slice(0, -1));
+    }
+  };
+
   return (
     <div className={styles.container}>
       <h1 className={styles.heading}>Create Grade Configurations</h1>
@@ -83,7 +102,11 @@ export default function CreateForms() {
 
       <div className={styles.configSection}>
         <h2>Bus Configurations</h2>
-        {[0, 1, 2].map((busIndex) => (
+        <div className={styles.busControls}>
+          <button onClick={addBus} className={styles.button}>Add Bus</button>
+          <button onClick={removeBus} className={styles.button} disabled={numBuses <= 1}>Remove Bus</button>
+        </div>
+        {Array.from({ length: numBuses }, (_, busIndex) => (
           <div key={busIndex} className={styles.busConfig}>
             <h3>Bus {busIndex + 1}</h3>
             <div className={styles.roomInputs}>
