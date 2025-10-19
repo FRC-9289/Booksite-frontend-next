@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import studentPOST from '../../api/studentPOST.api';
 import { studentGET } from '../../api/studentGET.api';
 import { roomsGET, roomGET } from '../../api/roomGET.api';
+import getGradeConfig from '../../api/getGradeConfig.api';
 import styles from './Student.module.css';
 
 interface StudentInfo {
@@ -24,11 +25,11 @@ export default function StudentSignUp() {
   const [grade, setGrade] = useState('9');
   const [loading, setLoading] = useState(false);
 
-  // Bus/room configuration
-  const [maleRooms, setMaleRooms] = useState<number[]>([2, 3, 2]); // rooms per bus
-  const [femaleRooms, setFemaleRooms] = useState<number[]>([3, 2, 3]);
+  // Bus/room configuration - now fetched dynamically
+  const [maleRooms, setMaleRooms] = useState<number[]>([]);
+  const [femaleRooms, setFemaleRooms] = useState<number[]>([]);
 
-  // Fetch student info and rooms whenever grade changes
+  // Fetch student info, grade config, and rooms whenever grade changes
   useEffect(() => {
     async function fetchData() {
       setLoading(true);
@@ -36,6 +37,16 @@ export default function StudentSignUp() {
         const name = localStorage.getItem('userName') || 'Unknown';
         const email = localStorage.getItem('userEmail');
         if (!email) return console.error('No email found in localStorage');
+
+        // Fetch grade config first
+        const config = await getGradeConfig(grade);
+        if (config) {
+          setMaleRooms(config.maleRooms || []);
+          setFemaleRooms(config.femaleRooms || []);
+        } else {
+          // Raise error if config not found and alert students
+          alert("Your admin has not yet set the number of male and female rooms in each bus.");
+        }
 
         // Fetch student info
         const studentData = await studentGET(name, email, grade);
