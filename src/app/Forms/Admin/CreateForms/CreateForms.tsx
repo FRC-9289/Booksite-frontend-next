@@ -101,7 +101,10 @@ export default function CreateForms({ isAdmin = false }: CreateFormsProps) {
         <select
           id="gradeSelect"
           value={grade}
-          onChange={(e) => setGrade(e.target.value)}
+          onChange={(e) => {
+            setGrade(e.target.value)
+            handleLoadConfig();
+          }}
           className={styles.select}
         >
           <option value="9">9</option>
