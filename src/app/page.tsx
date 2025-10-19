@@ -6,5 +6,5 @@ import { SessionProvider } from 'next-auth/react';
 import StudentLogin from './SignIn/SignIn';
 
 export default function SignUpPage() {
-  redirect('/Forms/Admin/Dashboard');
+  redirect('/SignIn');
 }
