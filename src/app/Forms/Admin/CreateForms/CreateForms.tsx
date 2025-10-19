@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import styles from './CreateForms.module.css';
-import createGradeConfig from '../../../api/createGradeConfig.api';
-import getGradeConfig from '../../../api/getGradeConfig.api';
+import { getGradeConfig, createGradeConfig } from '../../../api/createforms.api';
 
 interface CreateFormsProps {
   isAdmin?: boolean;
@@ -25,12 +24,69 @@ export default function CreateForms({ isAdmin = false }: CreateFormsProps) {
   const showAdmin = process.env.NEXT_PUBLIC_PROD === "true" ? isAdmin : true;
 
   // Your handlers...
-  const handleLoadConfig = async () => { /* ... */ };
-  const handleSaveConfig = async () => { /* ... */ };
-  const updateMaleRooms = (i: number, val: number) => { /* ... */ };
-  const updateFemaleRooms = (i: number, val: number) => { /* ... */ };
-  const addBus = () => { /* ... */ };
-  const removeBus = () => { /* ... */ };
+  const handleLoadConfig = async () => {
+    setLoading(true);
+    try {
+      const config = await getGradeConfig(grade);
+      if (config) {
+        const loadedMaleRooms = config.maleRooms || [];
+        const loadedFemaleRooms = config.femaleRooms || [];
+        const busCount = Math.max(loadedMaleRooms.length, loadedFemaleRooms.length, 3);
+        setNumBuses(busCount);
+        setMaleRooms(loadedMaleRooms.length === busCount ? loadedMaleRooms : [...loadedMaleRooms, ...Array(busCount - loadedMaleRooms.length).fill(3)]);
+        setFemaleRooms(loadedFemaleRooms.length === busCount ? loadedFemaleRooms : [...loadedFemaleRooms, ...Array(busCount - loadedFemaleRooms.length).fill(3)]);
+        setMessage('Config loaded successfully');
+      } else {
+        setMessage('No config found for this grade');
+      }
+    } catch (error) {
+      console.error('Failed to load config:', error);
+      setMessage('Failed to load config');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSaveConfig = async () => {
+    setLoading(true);
+    try {
+      await createGradeConfig(grade, maleRooms, femaleRooms);
+      setMessage('Config saved successfully');
+    } catch (error) {
+      console.error('Failed to save config:', error);
+      setMessage('Failed to save config');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateMaleRooms = (busIndex: number, value: number) => {
+    const newRooms = [...maleRooms];
+    newRooms[busIndex] = value;
+    setMaleRooms(newRooms);
+  };
+
+  const updateFemaleRooms = (busIndex: number, value: number) => {
+    const newRooms = [...femaleRooms];
+    newRooms[busIndex] = value;
+    setFemaleRooms(newRooms);
+  };
+
+  const addBus = () => {
+    setNumBuses(numBuses + 1);
+    setMaleRooms([...maleRooms, 3]);
+    setFemaleRooms([...femaleRooms, 3]);
+  };
+
+  const removeBus = () => {
+    if (numBuses > 1) {
+      setNumBuses(numBuses - 1);
+      setMaleRooms(maleRooms.slice(0, -1));
+      setFemaleRooms(femaleRooms.slice(0, -1));
+    }
+  };
+
+
 
   return showAdmin ? (
     <div className={styles.container}>
