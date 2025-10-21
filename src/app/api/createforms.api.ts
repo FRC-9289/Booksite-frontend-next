@@ -9,7 +9,7 @@ export async function getGradeConfig(grade: string) {
   });
 
   if (!res.ok) {
-    const text = await res.text();
+    const text = await res.json();
     console.error("Get grade config failed:", text);
     throw new Error(`Failed to get grade config: ${res.status} ${res.statusText}`);
   }

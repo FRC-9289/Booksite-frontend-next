@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import studentPOST from '../../api/studentPOST.api';
 import { studentGET } from '../../api/studentGET.api';
 import { roomsGET, roomGET } from '../../api/roomGET.api';
-import getGradeConfig from '../../api/createforms.api';
+import { getGradeConfig } from '../../api/createforms.api';
 import styles from './Student.module.css';
 
 interface StudentInfo {
