@@ -24,14 +24,14 @@ export async function studentGET(email: string, grade: number): Promise<{ room?:
   let room: string | undefined;
   if (roomBlob instanceof Blob) {
     const text = (await roomBlob.text()).trim();
-    room = text ? JSON.parse(text) : undefined;
+    room = text || undefined;
   }
 
   const statusBlob = form.get('status');
   let status: number | undefined;
   if (statusBlob instanceof Blob) {
     const text = (await statusBlob.text()).trim();
-    status = text ? JSON.parse(text) : undefined;
+    status = text ? Number(text) : undefined;
   }
 
   const pdfs: Blob[] = [];

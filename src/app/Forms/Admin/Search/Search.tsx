@@ -9,7 +9,7 @@ interface StudentData {
   email: string;
   grade: number;
   room: string;
-  pdfs: Blob[]; // store the actual Blobs
+  pdfs: Blob[];
   status?: number;
 }
 
@@ -18,17 +18,15 @@ export default function AdminSearch() {
   const [grade, setGrade] = useState<number | ''>('');
   const [student, setStudent] = useState<StudentData | null>(null);
   const [unapproved, setUnapproved] = useState<StudentData[]>([]);
+  const [gradeCounts, setGradeCounts] = useState<Record<number, number>>({});
   const [status, setStatus] = useState('');
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [rejectTarget, setRejectTarget] = useState<StudentData | null>(null);
   const [rejectReason, setRejectReason] = useState('');
 
-  // Revoke object URLs when component unmounts / PDFs change
   useEffect(() => {
-    return () => {
-      const allBlobs = [student, ...unapproved].flatMap(s => s?.pdfs ?? []);
-      allBlobs.forEach(b => URL.revokeObjectURL(b as any));
-    };
+    const allBlobs = [student, ...unapproved].flatMap(s => s?.pdfs ?? []);
+    return () => allBlobs.forEach(b => URL.revokeObjectURL(b as any));
   }, [student, unapproved]);
 
   const handleSearch = async () => {
@@ -39,8 +37,8 @@ export default function AdminSearch() {
 
     try {
       const gradeNum = Number(grade);
-
       let mainStudent: StudentData | null = null;
+
       if (email) {
         const res = await studentGET(email, gradeNum);
         mainStudent = {
@@ -51,17 +49,9 @@ export default function AdminSearch() {
           status: res.status,
         };
       }
-      setStudent(mainStudent);
 
-      const all = await studentsGET(gradeNum);
-      const unapprovedList: StudentData[] = all
-        .filter(s => s.status === 0 && s.email !== email)
-        .map(s => ({
-          ...s,
-          grade: gradeNum,
-          pdfs: s.pdfs || [],
-        }));
-      setUnapproved(unapprovedList);
+      setStudent(mainStudent);
+      await refreshUnapproved(gradeNum, email);
       setStatus('');
     } catch (err) {
       console.error(err);
@@ -72,7 +62,7 @@ export default function AdminSearch() {
   const handleApprove = async (s: StudentData) => {
     try {
       await studentPATCH(s.grade, s.email, 1);
-      setUnapproved(prev => prev.filter(u => u.email !== s.email));
+      await refreshUnapproved(s.grade, email);
       setStatus(`Approved ${s.email}`);
     } catch (err) {
       console.error(err);
@@ -80,11 +70,12 @@ export default function AdminSearch() {
     }
   };
 
+
   const confirmReject = async () => {
     if (!rejectTarget) return;
     try {
       await studentPATCH(rejectTarget.grade, rejectTarget.email, -1, rejectReason);
-      setUnapproved(prev => prev.filter(u => u.email !== rejectTarget.email));
+      await refreshUnapproved(rejectTarget.grade, email);
       setStatus(`Rejected ${rejectTarget.email}`);
     } catch (err) {
       console.error(err);
@@ -96,15 +87,51 @@ export default function AdminSearch() {
     }
   };
 
-  // Open PDF in new tab properly
   const openPdf = (blob: Blob) => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
     a.target = '_blank';
     a.click();
-    // Optional: revoke after a short delay
     setTimeout(() => URL.revokeObjectURL(url), 5000);
+  };
+
+  useEffect(() => {
+    const fetchCounts = async () => {
+      const counts: Record<number, number> = {};
+      for (let g = 9; g <= 12; g++) {
+        try {
+          const students = await studentsGET(g);
+          counts[g] = students.filter(s => s.status === 0).length;
+        } catch {
+          counts[g] = 0;
+        }
+      }
+      setGradeCounts(counts);
+    };
+    fetchCounts();
+  }, []);
+
+  const refreshUnapproved = async (gradeNum: number, excludeEmail?: string) => {
+    try {
+      const all = await studentsGET(gradeNum);
+      const unapprovedList: StudentData[] = all
+        .filter(s => s.status === 0 && s.email !== excludeEmail)
+        .map(s => ({
+          ...s,
+          grade: gradeNum,
+          pdfs: s.pdfs || [],
+        }));
+
+      setUnapproved(unapprovedList);
+      setGradeCounts(prev => ({
+        ...prev,
+        [gradeNum]: unapprovedList.length,
+      }));
+    } catch (err) {
+      console.error(err);
+      setStatus('Failed to refresh student list.');
+    }
   };
 
   return (
@@ -121,16 +148,20 @@ export default function AdminSearch() {
         />
 
         <label>Grade:</label>
-        <select
-          value={grade}
-          onChange={e => setGrade(Number(e.target.value))}
-          className={styles.input}
-        >
-          <option value="">-- Select Grade --</option>
-          {Array.from({ length: 4 }, (_, i) => 9 + i).map(g => (
-            <option key={g} value={g}>{g}</option>
+        <div className={styles.gradeRow}>
+          {[9, 10, 11, 12].map(g => (
+            <button
+              key={g}
+              className={`${styles.gradeButton} ${grade === g ? styles.selected : ''}`}
+              onClick={() => setGrade(g)}
+            >
+              {g}
+              {gradeCounts[g] > 0 && (
+                <span className={styles.badge}>{gradeCounts[g]}</span>
+              )}
+            </button>
           ))}
-        </select>
+        </div>
 
         <button onClick={handleSearch} className={styles.button}>Search</button>
       </div>
@@ -167,10 +198,15 @@ export default function AdminSearch() {
                 ))}
               </div>
               <button className={styles.button} onClick={() => handleApprove(s)}>Approve</button>
-              <button className={styles.button} onClick={() => {
-                setRejectTarget(s);
-                setShowRejectModal(true);
-              }}>Reject</button>
+              <button
+                className={styles.button}
+                onClick={() => {
+                  setRejectTarget(s);
+                  setShowRejectModal(true);
+                }}
+              >
+                Reject
+              </button>
             </div>
           ))}
         </fieldset>
@@ -189,11 +225,16 @@ export default function AdminSearch() {
             />
             <div className={styles.modalButtons}>
               <button className={styles.button} onClick={confirmReject}>Confirm Reject</button>
-              <button className={styles.button} onClick={() => {
-                setShowRejectModal(false);
-                setRejectTarget(null);
-                setRejectReason('');
-              }}>Cancel</button>
+              <button
+                className={styles.button}
+                onClick={() => {
+                  setShowRejectModal(false);
+                  setRejectTarget(null);
+                  setRejectReason('');
+                }}
+              >
+                Cancel
+              </button>
             </div>
           </div>
         </div>

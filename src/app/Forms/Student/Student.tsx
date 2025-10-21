@@ -20,7 +20,7 @@ export default function StudentSignUp() {
   const [debugRaw, setDebugRaw] = useState<any>(null);
   const [loadingRooms, setLoadingRooms] = useState(false);
 
-
+  // Load grade from localStorage
   useEffect(() => {
     const g = localStorage.getItem('userGrade');
     if (g) {
@@ -29,18 +29,29 @@ export default function StudentSignUp() {
     }
   }, []);
 
+  // Fetch rooms for a specific grade
   const fetchRooms = useCallback(async (g: number) => {
     try {
       setLoadingRooms(true);
       const email = localStorage.getItem('userEmail');
 
+      let studentData: { room?: string; pdfs?: Blob[]; status?: number } = { pdfs: [] };
 
-      const studentData = email ? await studentGET(email, g) : { pdfs: [] };
+      if (email) {
+        try {
+          studentData = await studentGET(email, g);
+        } catch (err: any) {
+          if (err.message.includes('404')) {
+            console.log('No existing student record; will create on submit.');
+          } else {
+            console.error('Failed to fetch student:', err);
+          }
+        }
+      }
 
       const roomListRaw = await roomsGET(g);
       setDebugRaw(roomListRaw);
       console.log('roomsGET raw:', roomListRaw);
-
 
       const roomList: RoomData[] = (roomListRaw || []).map((arr: string[]) => ({
         roomId: arr[0],
@@ -59,16 +70,20 @@ export default function StudentSignUp() {
     }
   }, []);
 
-
   useEffect(() => {
     if (grade) fetchRooms(grade);
   }, [grade, fetchRooms]);
 
+  // ------------------------
+  // FIXED SUBMIT HANDLER
+  // ------------------------
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const email = localStorage.getItem('userEmail');
-    const name = localStorage.getItem('userName') || 'Unknown';
 
+    // ✅ Keep form reference before async
+    const form = e.currentTarget;
+
+    const email = localStorage.getItem('userEmail');
     if (!email) {
       setStatus('Missing email. Please log in again.');
       return;
@@ -78,13 +93,28 @@ export default function StudentSignUp() {
       return;
     }
 
-    const formData = new FormData(e.currentTarget);
+    const formData = new FormData(form);
     formData.append('email', email);
-    formData.append('name', name);
     formData.append('room', selectedRoom);
     formData.append('grade', grade.toString());
 
     try {
+      const studentData = await studentGET(email, grade);
+      const existingPDFs = studentData?.pdfs || [];
+
+      // ✅ Safe loop — uses the stored "form" reference
+      for (let i = 1; i <= 3; i++) {
+        const input = form.querySelector<HTMLInputElement>(`#file${i}`);
+        if (input?.files?.length) {
+          // new file uploaded
+          formData.append(`file${i}`, input.files[0]);
+        } else if (existingPDFs[i - 1]) {
+          // reuse old PDF
+          const existingBlob = existingPDFs[i - 1];
+          formData.append(`file${i}`, existingBlob, `existing_file${i}.pdf`);
+        }
+      }
+
       const response = await studentPOST(formData);
       setStatus('Submission successful!');
       setUploaded(true);
@@ -95,7 +125,7 @@ export default function StudentSignUp() {
     }
   };
 
-
+  // Group rooms by bus and gender
   const groupedByBus: Record<string, { M: RoomData[]; F: RoomData[] }> = {};
   rooms.forEach((r) => {
     const id = r.roomId.trim().toUpperCase();
@@ -196,7 +226,7 @@ export default function StudentSignUp() {
                     id={`file${i}`}
                     name={`file${i}`}
                     accept="application/pdf"
-                    required
+                    required={!uploaded}
                   />
                 </div>
               ))}
@@ -236,10 +266,12 @@ export default function StudentSignUp() {
       {debugRaw && (
         <details style={{ marginTop: 12, color: '#ccc' }}>
           <summary>Debug: raw rooms response</summary>
-          <pre style={{ maxHeight: 240, overflow: 'auto' }}>{JSON.stringify(debugRaw, null, 2)}</pre>
+          <pre style={{ maxHeight: 240, overflow: 'auto' }}>
+            {JSON.stringify(debugRaw, null, 2)}
+          </pre>
         </details>
       )}
     </div>
   );
 }
-//Wolfram121
+// Wolfram121
