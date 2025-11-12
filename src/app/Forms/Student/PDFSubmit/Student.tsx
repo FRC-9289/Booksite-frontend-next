@@ -1,11 +1,13 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import studentPOST from '../../api/studentPOST.api';
-import { studentGET } from '../../api/studentGET.api';
-import { roomsGET, roomGET } from '../../api/roomGET.api';
-import { getGradeConfig } from '../../api/createforms.api';
+import studentPOST from '../../../api/studentPOST.api';
+import { studentGET } from '../../../api/studentGET.api';
+import { roomsGET, roomGET } from '../../../api/roomGET.api';
+import { getGradeConfig } from '../../../api/createforms.api';
 import styles from './Student.module.css';
+import { useRouter } from 'next/navigation';
+
 
 interface StudentInfo {
   name: string;
@@ -18,6 +20,7 @@ interface RoomData {
 }
 
 export default function StudentSignUp() {
+  const router = useRouter();
   const [rooms, setRooms] = useState<RoomData[]>([]);
   const [uploaded, setUploaded] = useState(false);
   const [selectedRoom, setSelectedRoom] = useState('');
@@ -53,6 +56,10 @@ export default function StudentSignUp() {
         setUploaded(studentData.pdfs?.length === 3 || false);
         setSelectedRoom(studentData.room || '');
 
+        if(studentData.status=="Approved"){
+          router.push("/Forms/Student/Roommate");
+      }
+
         // Fetch all rooms
         const roomIds = await roomsGET(grade);
 
@@ -87,7 +94,6 @@ export default function StudentSignUp() {
     const formData = new FormData(e.currentTarget);
     formData.append('name', name);
     formData.append('email', email);
-    formData.append('room', selectedRoom);
     formData.append('grade', grade);
 
     try {
@@ -134,48 +140,6 @@ export default function StudentSignUp() {
 
       <form onSubmit={handleSubmit} className={styles.form}>
         <div className={styles.formLayout}>
-          {/* Room selection */}
-          <div className={styles.busContainer}>
-            {Object.entries(groupedByBus).map(([busNum, genders]) => (
-              <fieldset key={busNum} className={styles.busFieldset}>
-                <legend>Bus {busNum}</legend>
-                <div className={styles.genderContainer}>
-                  {(['M', 'F'] as const).map((gender) => (
-                    <fieldset key={gender} className={styles.genderFieldset}>
-                      <legend>{gender === 'M' ? 'Male Rooms' : 'Female Rooms'}</legend>
-                      <div className={styles.radioGroup}>
-                        {genders[gender].map((room) => (
-                          <div key={room.roomId} className={styles.radioOption}>
-                            <input
-                              type="radio"
-                              name="room_select"
-                              id={`radio-${room.roomId}`}
-                              value={room.roomId}
-                              checked={selectedRoom === room.roomId}
-                              onChange={() => setSelectedRoom(room.roomId)}
-                              required
-                              className={styles.radioInput}
-                            />
-                            <label htmlFor={`radio-${room.roomId}`} className={styles.radioLabel}>
-                              Room {room.roomId[2]} – {room.students.length} student(s)
-                            </label>
-
-                            {room.students.length > 0 && (
-                              <ul className={styles.occupantsList}>
-                                {room.students.map((s, i) => (
-                                  <li key={i}>{s.name}</li>
-                                ))}
-                              </ul>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    </fieldset>
-                  ))}
-                </div>
-              </fieldset>
-            ))}
-          </div>
 
           {/* File upload and grade selection */}
           <div className={styles.fileUploadContainer}>

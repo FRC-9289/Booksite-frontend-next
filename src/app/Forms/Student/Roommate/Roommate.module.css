@@ -1,0 +1,235 @@
+.container {
+    font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+    background: #1e1e1e;
+    padding: 2.5em;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+    width: 95%;
+    color: #f0f0f0;
+    margin: 3rem auto;
+    border: 1px solid #2f2f2f;
+  }
+  
+  .formLayout {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 2em;
+    flex-wrap: wrap;
+  }
+  
+  .busContainer {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5em;
+  }
+  
+  .fileUploadContainer {
+    flex: 1;
+    min-width: 280px;
+  }
+  
+  .heading {
+    margin-bottom: 1.5em;
+    text-align: center;
+    color: #4da6ff;
+    font-size: 1.5em;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+  
+  .group {
+    margin-bottom: 1.5em;
+  }
+  
+  .label {
+    display: block;
+    margin-bottom: 0.5em;
+    color: #bfbfbf;
+    font-size: 0.9em;
+    font-weight: 500;
+  }
+  
+  .input {
+    width: 100%;
+    padding: 0.7em 0.9em;
+    border: 1px solid #3a3a3a;
+    border-radius: 6px;
+    background: #2b2b2b;
+    color: #f5f5f5;
+    font-size: 0.95em;
+    transition: border 0.3s, box-shadow 0.3s, background 0.3s;
+  }
+  
+  .input:hover {
+    background: #333333;
+  }
+  
+  .input:focus {
+    border-color: #4da6ff;
+    box-shadow: 0 0 6px rgba(77, 166, 255, 0.5);
+    outline: none;
+  }
+  
+  .button {
+    width: 100%;
+    padding: 0.9em;
+    background: linear-gradient(135deg, #0078d4, #005fa3);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.1s ease;
+  }
+  
+  .button:hover {
+    background: linear-gradient(135deg, #0088ff, #006bb8);
+  }
+  
+  .button:active {
+    transform: scale(0.97);
+  }
+  
+  .status {
+    margin-top: 1.2em;
+    text-align: center;
+    font-size: 0.95em;
+    color: #66b2ff;
+    font-weight: 500;
+  }
+  
+  .busFieldset {
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 1.2em;
+    margin-bottom: 1.5em;
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+  }
+  
+  .genderFieldset {
+    flex: 1;
+    min-width: 250px;
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 1em;
+    margin: 0;
+  }
+  
+  .fileUploadFieldset {
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 1.2em;
+    margin-bottom: 1.5em;
+  }
+  
+  .fileUploadFieldset legend {
+    padding: 0 0.5em;
+    font-weight: 600;
+    color: #80caff;
+  }
+  
+  .genderContainer {
+    display: flex;
+    gap: 1em;
+    flex-wrap: wrap;
+  }
+  
+  .radioGroup {
+    margin-top: 1em;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8em;
+  }
+  
+  .radioOption {
+    display: flex;
+    align-items: center;
+    background: #2b2b2b;
+    border: 1px solid #3a3a3a;
+    border-radius: 6px;
+    padding: 0.6em 0.8em;
+    transition: border-color 0.3s, background 0.3s;
+    cursor: pointer;
+  }
+  
+  .radioOption:hover {
+    border-color: #4da6ff;
+    background: #333333;
+  }
+  
+  .radioOption input[type="radio"] {
+    appearance: none;
+    width: 1.1em;
+    height: 1.1em;
+    border: 2px solid #777;
+    border-radius: 50%;
+    margin-right: 0.7em;
+    background: #1e1e1e;
+    transition: border-color 0.25s, background-color 0.25s;
+    cursor: pointer;
+  }
+  
+  .radioOption input[type="radio"]:checked {
+    border-color: #4da6ff;
+    background: radial-gradient(circle at center, #4da6ff 40%, transparent 41%);
+  }
+  
+  .radioLabel {
+    font-size: 0.95em;
+    color: #e0e0e0;
+  }
+  
+  .fileInputGroup {
+    margin-top: 0.8em;
+  }
+  
+  .fileInputGroup label {
+    display: block;
+    margin-bottom: 0.4em;
+    color: #b0b0b0;
+    font-size: 0.9em;
+  }
+  
+  .fileInputGroup input[type="file"] {
+    display: block;
+    width: 100%;
+    background: #2b2b2b;
+    border: 1px dashed #444;
+    border-radius: 6px;
+    padding: 0.5em;
+    color: #ccc;
+    transition: border 0.3s;
+  }
+  
+  .fileInputGroup input[type="file"]:hover {
+    border-color: #4da6ff;
+  }
+  
+  .fullRoom {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+  
+  .occupantsList {
+    margin: 0.3em 0 0 1.5em;
+    font-size: 0.85em;
+    color: #b0b0b0;
+  }
+  
+  .gradeSelect {
+    width: 120px;
+    padding: 0.4em 0.6em;
+    border-radius: 6px;
+    border: 1px solid #444;
+    background-color: #1e1e1e;
+    color: #f5f5f5;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  

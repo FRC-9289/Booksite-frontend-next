@@ -20,7 +20,7 @@ export default function StudentLogin() {
 
       // Redirect based on email domain
       if (email.endsWith('@s.thevillageschool.com')) {
-        router.push('/Forms/Student');
+        router.push('/Forms/Student/PDFSubmit');
         localStorage.setItem('isAdmin', 'false');
       } else if (email.endsWith('@thevillageschool.com')) {
         router.push('/Forms/Admin/Dashboard');
