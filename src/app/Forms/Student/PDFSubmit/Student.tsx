@@ -31,6 +31,8 @@ export default function StudentSignUp() {
   // Bus/room configuration - now fetched dynamically
   const [maleRooms, setMaleRooms] = useState<number[]>([]);
   const [femaleRooms, setFemaleRooms] = useState<number[]>([]);
+  const [numPdfs, setNumPdfs] = useState(3);
+  const [pdfNames, setPdfNames] = useState<string[]>(['PDF 1', 'PDF 2', 'PDF 3']);
 
   // Fetch student info, grade config, and rooms whenever grade changes
   useEffect(() => {
@@ -46,6 +48,8 @@ export default function StudentSignUp() {
         if (config) {
           setMaleRooms(config.maleRooms || []);
           setFemaleRooms(config.femaleRooms || []);
+          setNumPdfs(config.numPdfs || 3);
+          setPdfNames(config.pdfNames || ['PDF 1', 'PDF 2', 'PDF 3']);
         } else {
           // Raise error if config not found and alert students
           alert("Your admin has not yet set the number of male and female rooms in each bus.");
@@ -53,7 +57,7 @@ export default function StudentSignUp() {
 
         // Fetch student info
         const studentData = await studentGET(name, email, grade);
-        setUploaded(studentData.pdfs?.length === 3 || false);
+        setUploaded(studentData.pdfs?.length === numPdfs || false);
         setSelectedRoom(studentData.room || '');
 
         if(studentData.status=="Approved"){
@@ -145,13 +149,13 @@ export default function StudentSignUp() {
           <div className={styles.fileUploadContainer}>
             <fieldset className={styles.fileUploadFieldset}>
               <legend>Upload Required PDFs</legend>
-              {[1, 2, 3].map((i) => (
+              {Array.from({ length: numPdfs }, (_, i) => (
                 <div key={i} className={styles.fileInputGroup}>
-                  <label htmlFor={`file${i}`}>PDF {i}:</label>
+                  <label htmlFor={`file${i + 1}`}>{pdfNames[i] || `PDF ${i + 1}`}:</label>
                   <input
                     type="file"
-                    id={`file${i}`}
-                    name={`file${i}`}
+                    id={`file${i + 1}`}
+                    name={`file${i + 1}`}
                     accept="application/pdf"
                     required
                   />

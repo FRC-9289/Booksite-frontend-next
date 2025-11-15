@@ -18,8 +18,8 @@ export async function getGradeConfig(grade: string) {
   return data.config; // Return the config object
 }
 
-export async function createGradeConfig(grade: string, maleRooms: number[], femaleRooms: number[]) {
-  console.log("Creating grade config:", grade, maleRooms, femaleRooms);
+export async function createGradeConfig(grade: string, maleRooms: number[], femaleRooms: number[], numPdfs?: number, pdfNames?: string[]) {
+  console.log("Creating grade config:", grade, maleRooms, femaleRooms, numPdfs, pdfNames);
 
   const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/create-grade-config`, {
     method: "POST",
@@ -27,7 +27,7 @@ export async function createGradeConfig(grade: string, maleRooms: number[], fema
       "Content-Type": "application/json",
       Authorization: `Bearer ${process.env.NEXT_PUBLIC_API_KEY}`,
     },
-    body: JSON.stringify({ grade, maleRooms, femaleRooms }),
+    body: JSON.stringify({ grade, maleRooms, femaleRooms, numPdfs, pdfNames }),
   });
 
   if (!res.ok) {
