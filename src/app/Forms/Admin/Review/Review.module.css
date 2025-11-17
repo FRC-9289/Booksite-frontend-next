@@ -141,7 +141,7 @@
     background: linear-gradient(90deg, #0e62d7, #034f66);
     border: none;
     border-radius: 5px;
-    width: 20%;
+    width: fit-content;
     cursor: pointer;
     transition: background-color 0.3s ease, transform 0.3s ease;
   }

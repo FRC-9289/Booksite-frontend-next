@@ -1,10 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import styles from './Admin.module.css';
+import styles from './Review.module.css';
 import getsubmissions from '../../../api/getsubmissions.api';
 import updateStatus from '../../../api/updateStatus.api';
 import { fetchAllComments, pushComment } from '../../../api/comment.api';
+import { getGradeConfig } from '../../../api/createforms.api';
 
 interface ReviewProps {
   isAdmin?: boolean;
@@ -21,6 +22,8 @@ export default function Admin() {
   const [activeCommentPanelId, setActiveCommentPanelId] = useState<string | null>(null);
   const [comment, setComment] = useState("");
   const [commentHistory, setCommentHistory] = useState([])
+
+  const [pdfNames, getPdfNames] = useState([]);
 
   const commentStateChange = async (submissionId) => {
     if (!comment.trim()) return; // ignore empty comments
@@ -42,6 +45,13 @@ export default function Admin() {
 
     loadComments(submissionId);
   };
+
+  const getPDFNames = async (grade) => {
+    const res = await getGradeConfig(grade);
+
+    console.log(res.config.pdfNames);
+
+  }
 
 
   useEffect(() => {
@@ -143,6 +153,8 @@ export default function Admin() {
     return matchesSearch && matchesStatus;
   });
 
+  console.log(filteredSubmissions);
+
   // Don't render until client has mounted
   if (!mounted) return null;
 
@@ -178,6 +190,7 @@ export default function Admin() {
           {filteredSubmissions.length === 0 ? (
             <p>No submissions found.</p>
           ) : (
+
             filteredSubmissions.map((submission, i) => (
               <div className={styles.submission} key={i}>
               <div className={styles.manage} >
@@ -233,7 +246,7 @@ export default function Admin() {
                 <div className={styles.filesContainer}>
                   {submission.filesData?.map((file, j) => (
                     <button
-                      key={file.fileId}
+                      key={file.fileId} // use the unique file id
                       className={styles.fileButton}
                       onClick={() => {
                         const byteCharacters = atob(file.base64);
@@ -246,7 +259,7 @@ export default function Admin() {
                         window.open(blobUrl, "_blank");
                       }}
                     >
-                      {file.fileName}
+                      {file.pdfType} {/* Use the pdfType as the button label */}
                     </button>
                   ))}
                 </div>
