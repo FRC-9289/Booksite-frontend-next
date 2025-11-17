@@ -14,7 +14,7 @@ export default function CreateForms({ isAdmin = false }: CreateFormsProps) {
   const [maleRooms, setMaleRooms] = useState<number[]>([]);
   const [femaleRooms, setFemaleRooms] = useState<number[]>([]);
   const [numPdfs, setNumPdfs] = useState(3);
-  const [pdfNames, setPdfNames] = useState<string[]>(['PDF 1', 'PDF 2', 'PDF 3']);
+  const [pdfNames, setPdfNames] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [mounted, setMounted] = useState(false);
@@ -46,7 +46,7 @@ export default function CreateForms({ isAdmin = false }: CreateFormsProps) {
           setMaleRooms([]);
           setFemaleRooms([]);
           setNumPdfs(config.numPdfs || 3);
-          setPdfNames(config.pdfNames || ['PDF 1', 'PDF 2', 'PDF 3']);
+          setPdfNames(config.pdfNames || ['PDF Names not set up yet']);
           setMessage('No buses configured for this grade');
         } else {
           const busCount = Math.max(
@@ -71,7 +71,7 @@ export default function CreateForms({ isAdmin = false }: CreateFormsProps) {
                 ]
           );
           setNumPdfs(config.numPdfs || 3);
-          setPdfNames(config.pdfNames || ['PDF 1', 'PDF 2', 'PDF 3']);
+          setPdfNames(config.pdfNames || ['PDF Not Set Up Yet']);
           setMessage('Config loaded successfully');
         }
       } else {
@@ -79,7 +79,7 @@ export default function CreateForms({ isAdmin = false }: CreateFormsProps) {
         setMaleRooms([]);
         setFemaleRooms([]);
         setNumPdfs(3);
-        setPdfNames(['PDF 1', 'PDF 2', 'PDF 3']);
+        setPdfNames(['PDF Not set up yet']);
         setMessage('No config found for this grade');
       }
     } catch (error) {

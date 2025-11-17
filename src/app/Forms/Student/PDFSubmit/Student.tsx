@@ -31,8 +31,8 @@ export default function StudentSignUp() {
   // Bus/room configuration - now fetched dynamically
   const [maleRooms, setMaleRooms] = useState<number[]>([]);
   const [femaleRooms, setFemaleRooms] = useState<number[]>([]);
-  const [numPdfs, setNumPdfs] = useState(3);
-  const [pdfNames, setPdfNames] = useState<string[]>(['PDF 1', 'PDF 2', 'PDF 3']);
+  const [numPdfs, setNumPdfs] = useState(1);
+  const [pdfNames, setPdfNames] = useState<string[]>([]);
 
   // Fetch student info, grade config, and rooms whenever grade changes
   useEffect(() => {
@@ -48,8 +48,8 @@ export default function StudentSignUp() {
         if (config) {
           setMaleRooms(config.maleRooms || []);
           setFemaleRooms(config.femaleRooms || []);
-          setNumPdfs(config.numPdfs || 3);
-          setPdfNames(config.pdfNames || ['PDF 1', 'PDF 2', 'PDF 3']);
+          setNumPdfs(config.numPdfs || 1);
+          setPdfNames(config.pdfNames || ['PDF Not Set Up Yet']);
         } else {
           // Raise error if config not found and alert students
           alert("Your admin has not yet set the number of male and female rooms in each bus.");
@@ -94,12 +94,18 @@ export default function StudentSignUp() {
     e.preventDefault();
     const name = localStorage.getItem('userName') || 'Unknown';
     const email = localStorage.getItem('userEmail') || '';
-
+  
     const formData = new FormData(e.currentTarget);
+  
+    // Metadata
     formData.append('name', name);
     formData.append('email', email);
     formData.append('grade', grade);
+    formData.append('room', "   ");
+  
 
+    formData.append("pdfNames", JSON.stringify(pdfNames));
+  
     try {
       const res = await studentPOST(formData);
       alert(`Submission successful! Your submission ID is ${res.submissionId}`);
@@ -110,6 +116,7 @@ export default function StudentSignUp() {
       setStatus('Submission failed.');
     }
   };
+  
 
   // Group rooms dynamically per bus
   const groupedByBus: Record<string, { M: RoomData[]; F: RoomData[] }> = {};
