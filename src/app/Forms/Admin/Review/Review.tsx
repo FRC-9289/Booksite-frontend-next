@@ -244,7 +244,7 @@ export default function Admin() {
                 {/* Display uploaded files */}
                 <div className={styles.filesContainer}>
                   {submission.filesData?.map((file, j) => (
-                    <div>
+                    <div className={styles.submissionFiles}>
                       <button
                         key={file.fileId.id} // use the unique file id
                         className={styles.fileButton}
@@ -261,21 +261,14 @@ export default function Admin() {
                       >
                         {file.fileId.type} {/* Use the pdfType as the button label */}
                       </button>
-                      <p style={{ color: getColor(submission.status) }}>
-                      <select
-                        value={submission.status}
-                        onChange={(e) =>
-                          handleFileStatusChange(submission._id, file.fileId.id, e.target.value, )
-                        }
-                        className={styles.statusFilter}
-                        style={{ color: getColor(submission.status) }}
-                      >
-                        <option value="Pending">Pending</option>
-                        <option value="Approved">Approved</option>
-                        <option value="Denied">Denied</option>
-                      </select>
-                    </p>
-                      </div>
+                      <p>
+                        <select className={styles.statusFilter}>
+                          <option value="Pending">Pending</option>
+                          <option value="Approved">Approved</option>
+                          <option value="Denied">Denied</option>
+                        </select>
+                      </p>
+                    </div>
                   ))}
                 </div>
                 <div className={styles.statusContainer}>
