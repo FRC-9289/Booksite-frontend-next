@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import styles from './Review.module.css';
 import getsubmissions from '../../../api/getsubmissions.api';
-import updateStatus from '../../../api/updateStatus.api';
+import { updateStatus, updateFileStatus} from '../../../api/updateStatus.api';
 import { fetchAllComments, pushComment } from '../../../api/comment.api';
 import { getGradeConfig } from '../../../api/createforms.api';
 
@@ -28,13 +28,9 @@ export default function Admin() {
   const commentStateChange = async (submissionId) => {
     if (!comment.trim()) return; // ignore empty comments
   
-    console.log("Comment:", comment);
-    console.log("Submission:", submissionId);
-  
     try {
       const { success, commentId } = await pushComment(comment, submissionId);
       if (success) {
-        console.log("✅ Comment added:", commentId);
         setComment("");
       } else {
         console.error("❌ Failed to add comment");
@@ -48,8 +44,6 @@ export default function Admin() {
 
   const getPDFNames = async (grade) => {
     const res = await getGradeConfig(grade);
-
-    console.log(res.config.pdfNames);
 
   }
 
@@ -99,7 +93,6 @@ export default function Admin() {
   const loadComments = async (submissionId: string) => {
     const comments = await fetchAllComments(submissionId);
     setCommentHistory(comments.comments);
-    console.log("Comments: ",comments);
   }
 
   if (loading) return <p>Loading...</p>;
@@ -117,7 +110,7 @@ export default function Admin() {
     }
   };
 
-  const handleStatusChange = async (submissionId: string, newStatus: string, email: string) => {
+  const handleStatusChange = async (submissionId: string, newStatus: string) => {
     try {
       const res = await updateStatus(submissionId, newStatus);
       // Reload submissions after update
@@ -131,12 +124,19 @@ export default function Admin() {
     }
   };
 
-  const addComment = async (comment, submissionId) => {
-    console.log(`Comment: ${comment}`);
-    console.log(`Submission: ${submissionId}`);
-    const { success, commentId } = await pushComment(comment, submissionId);
-  }
-
+  const handleFileStatusChange = async (submissionId: string, fileId: string, newStatus: string) => {
+    try {
+      const res = await updateFileStatus(submissionId, fileId, newStatus);
+      // Reload submissions after update
+      await loadSubmissions();
+      if(!res.success){
+        throw new Error(await res);
+      }
+    } catch (error) {
+      console.error('Failed to update status:', error);
+      alert('Failed to update status. Please try again.');
+    }
+  };
   const filteredSubmissions = submissions.filter((s) => {
     const term = search.toLowerCase();
     const matchesSearch = (
@@ -152,8 +152,6 @@ export default function Admin() {
     const matchesStatus = statusFilter === 'All' || s.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
-
-  console.log(filteredSubmissions);
 
   // Don't render until client has mounted
   if (!mounted) return null;
@@ -192,6 +190,7 @@ export default function Admin() {
           ) : (
 
             filteredSubmissions.map((submission, i) => (
+            
               <div className={styles.submission} key={i}>
               <div className={styles.manage} >
                 <div>
@@ -245,22 +244,38 @@ export default function Admin() {
                 {/* Display uploaded files */}
                 <div className={styles.filesContainer}>
                   {submission.filesData?.map((file, j) => (
-                    <button
-                      key={file.fileId} // use the unique file id
-                      className={styles.fileButton}
-                      onClick={() => {
-                        const byteCharacters = atob(file.base64);
-                        const byteNumbers = Array.from(byteCharacters, (c) =>
-                          c.charCodeAt(0)
-                        );
-                        const byteArray = new Uint8Array(byteNumbers);
-                        const blob = new Blob([byteArray], { type: "application/pdf" });
-                        const blobUrl = URL.createObjectURL(blob);
-                        window.open(blobUrl, "_blank");
-                      }}
-                    >
-                      {file.pdfType} {/* Use the pdfType as the button label */}
-                    </button>
+                    <div>
+                      <button
+                        key={file.fileId.id} // use the unique file id
+                        className={styles.fileButton}
+                        onClick={() => {
+                          const byteCharacters = atob(file.base64);
+                          const byteNumbers = Array.from(byteCharacters, (c) =>
+                            c.charCodeAt(0)
+                          );
+                          const byteArray = new Uint8Array(byteNumbers);
+                          const blob = new Blob([byteArray], { type: "application/pdf" });
+                          const blobUrl = URL.createObjectURL(blob);
+                          window.open(blobUrl, "_blank");
+                        }}
+                      >
+                        {file.fileId.type} {/* Use the pdfType as the button label */}
+                      </button>
+                      <p style={{ color: getColor(submission.status) }}>
+                      <select
+                        value={submission.status}
+                        onChange={(e) =>
+                          handleFileStatusChange(submission._id, file.fileId.id, e.target.value, )
+                        }
+                        className={styles.statusFilter}
+                        style={{ color: getColor(submission.status) }}
+                      >
+                        <option value="Pending">Pending</option>
+                        <option value="Approved">Approved</option>
+                        <option value="Denied">Denied</option>
+                      </select>
+                    </p>
+                      </div>
                   ))}
                 </div>
                 <div className={styles.statusContainer}>
@@ -268,7 +283,7 @@ export default function Admin() {
                   <select
                     value={submission.status}
                     onChange={(e) =>
-                      handleStatusChange(submission._id, e.target.value, submission.email)
+                      handleStatusChange(submission._id, e.target.value)
                     }
                     className={styles.statusFilter}
                     style={{ color: getColor(submission.status) }}
