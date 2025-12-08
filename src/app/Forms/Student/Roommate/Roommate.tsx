@@ -122,8 +122,8 @@ export default function Roommate(){
       groupedByBus[busNum].F.push(existing || { roomId, students: [] });
     }
   }
-    return (   
-    <div className={styles.container}> 
+    return (
+    <div className={styles.container}>
         <select
                   id="gradeSelect"
                   name="grade"
@@ -136,7 +136,7 @@ export default function Roommate(){
                   <option value="10">10</option>
                   <option value="11">11</option>
                   <option value="12">12</option>
-        </select>   
+        </select>
     <div className={styles.busContainer}>
         {Object.entries(groupedByBus).map(([busNum, genders]) => (
           <fieldset key={busNum} className={styles.busFieldset}>

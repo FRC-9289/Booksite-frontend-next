@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import styles from './Review.module.css';
 import getsubmissions from '../../../api/getsubmissions.api';
 import updateStatus from '../../../api/updateStatus.api';
+import updateFileStatus from '../../../api/updateFileStatus.api';
 import { fetchAllComments, pushComment } from '../../../api/comment.api';
 import { getGradeConfig } from '../../../api/createforms.api';
 
@@ -117,6 +118,19 @@ export default function Admin() {
     }
   };
 
+  const getFileColor = (status) => {
+    switch (status) {
+      case 'Correct':
+        return 'green';
+      case 'Incorrect':
+        return 'red';
+      case 'Pending':
+        return 'orange';
+      default:
+        return 'gray';
+    }
+  };
+
   const handleStatusChange = async (submissionId: string, newStatus: string, email: string) => {
     try {
       const res = await updateStatus(submissionId, newStatus);
@@ -128,6 +142,20 @@ export default function Admin() {
     } catch (error) {
       console.error('Failed to update status:', error);
       alert('Failed to update status. Please try again.');
+    }
+  };
+
+  const handleFileStatusChange = async (submissionId: string, fileId: string, newStatus: string) => {
+    try {
+      const res = await updateFileStatus(submissionId, fileId, newStatus);
+      // Reload submissions after update
+      await loadSubmissions();
+      if(!res.success){
+        throw new Error(await res);
+      }
+    } catch (error) {
+      console.error('Failed to update file status:', error);
+      alert('Failed to update file status. Please try again.');
     }
   };
 
@@ -245,22 +273,33 @@ export default function Admin() {
                 {/* Display uploaded files */}
                 <div className={styles.filesContainer}>
                   {submission.filesData?.map((file, j) => (
-                    <button
-                      key={file.fileId} // use the unique file id
-                      className={styles.fileButton}
-                      onClick={() => {
-                        const byteCharacters = atob(file.base64);
-                        const byteNumbers = Array.from(byteCharacters, (c) =>
-                          c.charCodeAt(0)
-                        );
-                        const byteArray = new Uint8Array(byteNumbers);
-                        const blob = new Blob([byteArray], { type: "application/pdf" });
-                        const blobUrl = URL.createObjectURL(blob);
-                        window.open(blobUrl, "_blank");
-                      }}
-                    >
-                      {file.pdfType} {/* Use the pdfType as the button label */}
-                    </button>
+                    <div key={file.fileId} className={styles.fileItem}>
+                      <button
+                        className={styles.fileButton}
+                        onClick={() => {
+                          const byteCharacters = atob(file.base64);
+                          const byteNumbers = Array.from(byteCharacters, (c) =>
+                            c.charCodeAt(0)
+                          );
+                          const byteArray = new Uint8Array(byteNumbers);
+                          const blob = new Blob([byteArray], { type: "application/pdf" });
+                          const blobUrl = URL.createObjectURL(blob);
+                          window.open(blobUrl, "_blank");
+                        }}
+                      >
+                        {file.pdfType} {/* Use the pdfType as the button label */}
+                      </button>
+                      <select
+                        value={submission.fileStatuses?.[file.fileId] || 'Pending'}
+                        onChange={(e) => handleFileStatusChange(submission._id, file.fileId, e.target.value)}
+                        className={styles.fileStatusFilter}
+                        style={{ color: getFileColor(submission.fileStatuses?.[file.fileId] || 'Pending') }}
+                      >
+                        <option value="Pending">Pending</option>
+                        <option value="Correct">Correct</option>
+                        <option value="Incorrect">Incorrect</option>
+                      </select>
+                    </div>
                   ))}
                 </div>
                 <div className={styles.statusContainer}>
