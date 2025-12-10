@@ -101,7 +101,8 @@ export default function StudentSignUp() {
     formData.append('name', name);
     formData.append('email', email);
     formData.append('grade', grade);
-    formData.append('room', "   ");
+    formData.append('room', "");
+    formData.append('bus',"");
   
 
     formData.append("pdfNames", JSON.stringify(pdfNames));

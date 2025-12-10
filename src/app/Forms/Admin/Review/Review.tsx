@@ -227,10 +227,10 @@ export default function Admin() {
                 <p><strong>Name:</strong> {submission.name}</p>
                 <p><strong>Grade:</strong> {submission.grade}</p>
                 <p><strong>Email:</strong> {submission.email}</p>
-                <p><strong>Bus:</strong> {submission.room[0]}</p>
+                <p><strong>Bus:</strong> {submission.room[0] ? submission.room[0] : "n/a"}</p>
                 <p>
                   <strong>Room:</strong>{" "}
-                  {submission.room[1] === "M" ? "Male" : "Female"} {submission.room[2]}
+                  {submission.room[1] === "M" || submission.room[1] === "F" ? (submission.room[1] === "M" ? "Male" : "Female") : "n/a"} {submission.room[2]}
                 </p>
                 </div>
                 <div 
@@ -290,10 +290,10 @@ export default function Admin() {
                         {file.pdfType} {/* Use the pdfType as the button label */}
                       </button>
                       <select
-                        value={submission.fileStatuses?.[file.fileId] || 'Pending'}
+                        value={file.status || 'Pending'}
                         onChange={(e) => handleFileStatusChange(submission._id, file.fileId, e.target.value)}
                         className={styles.fileStatusFilter}
-                        style={{ color: getFileColor(submission.fileStatuses?.[file.fileId] || 'Pending') }}
+                        style={{ color: getFileColor(file.status || 'Pending') }}
                       >
                         <option value="Pending">Pending</option>
                         <option value="Correct">Correct</option>
